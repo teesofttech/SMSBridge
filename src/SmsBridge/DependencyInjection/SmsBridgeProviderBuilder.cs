@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmsBridge.Abstractions;
 using SmsBridge.Internal.Http;
 using SmsBridge.Options;
+using SmsBridge.Providers.Sinch;
 using SmsBridge.Providers.Twilio;
 using SmsBridge.Providers.Vonage;
 
@@ -81,6 +82,49 @@ public static class SmsBridgeProviderBuilder
 
         return builder;
     }
+
+    /// <summary>Registers the Sinch SMS provider.</summary>
+    public static SmsBridgeBuilder UseSinch(
+        this SmsBridgeBuilder builder,
+        string name,
+        Action<SinchProviderConfig> configure)
+    {
+        var config = new SinchProviderConfig();
+        configure(config);
+
+        if (string.IsNullOrWhiteSpace(config.ServicePlanId))
+            throw new SmsBridgeException($"Sinch provider '{name}': ServicePlanId is required.");
+        if (string.IsNullOrWhiteSpace(config.ApiToken))
+            throw new SmsBridgeException($"Sinch provider '{name}': ApiToken is required.");
+        if (string.IsNullOrWhiteSpace(config.From))
+            throw new SmsBridgeException($"Sinch provider '{name}': From is required.");
+
+        var options = new SinchOptions
+        {
+            ServicePlanId = config.ServicePlanId,
+            ApiToken = config.ApiToken,
+            From = config.From
+        };
+
+        builder.Services.AddHttpClient(HttpClientNames.Sinch);
+
+        builder.Services.AddSingleton<ISmsProvider>(sp =>
+            new SinchSmsProvider(
+                name,
+                options,
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<SinchSmsProvider>>()));
+
+        return builder;
+    }
+}
+
+/// <summary>Mutable configuration object used when calling <c>.UseSinch()</c>.</summary>
+public sealed class SinchProviderConfig
+{
+    public string? ServicePlanId { get; set; }
+    public string? ApiToken { get; set; }
+    public string? From { get; set; }
 }
 
 /// <summary>Mutable configuration object used when calling <c>.UseTwilio()</c>.</summary>
