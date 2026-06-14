@@ -11,5 +11,6 @@ public enum SmsProviderType
     Termii = 6,
     Unifonic = 7,
     Sinch = 8,
-    Plivo = 9
+    Plivo = 9,
+    Telnyx = 10
 }

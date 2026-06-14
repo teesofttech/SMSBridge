@@ -8,4 +8,5 @@ internal static class HttpClientNames
     public const string AwsSns = "SmsBridge.AwsSns";
     public const string Sinch = "SmsBridge.Sinch";
     public const string Plivo = "SmsBridge.Plivo";
+    public const string Telnyx = "SmsBridge.Telnyx";
 }
