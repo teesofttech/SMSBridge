@@ -33,6 +33,30 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithPlivo()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "plivo";
+                opts.Providers["plivo"] = new SmsProviderOptions { Type = SmsProviderType.Plivo };
+            })
+            .UsePlivo("plivo", o =>
+            {
+                o.AuthId = "MATEST000000000000000";
+                o.AuthToken = "test-token";
+                o.From = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void ISmsClient_CanBeResolvedFromDI_WithSinch()
     {
         var services = new ServiceCollection();

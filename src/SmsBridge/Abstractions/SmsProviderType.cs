@@ -10,5 +10,6 @@ public enum SmsProviderType
     Infobip = 5,
     Termii = 6,
     Unifonic = 7,
-    Sinch = 8
+    Sinch = 8,
+    Plivo = 9
 }
