@@ -1,0 +1,40 @@
+## .NET
+bin/
+obj/
+artifacts/
+*.user
+*.suo
+.vs/
+_ReSharper*/
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+!**/[Pp]ackages/build/
+.nuget/
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+## Test coverage
+coverage/
+TestResults/
+
+## Environment
+.env
+*.env
+appsettings.*.json
+!appsettings.Development.json

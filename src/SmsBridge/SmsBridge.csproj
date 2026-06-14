@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <RootNamespace>SmsBridge</RootNamespace>
+    <AssemblyName>SmsBridge</AssemblyName>
+
+    <PackageId>SmsBridge</PackageId>
+    <Version>0.1.0</Version>
+    <Description>A provider-agnostic .NET SDK for sending SMS through multiple providers using one clean API. Install one SDK. Send SMS through multiple providers. Switch anytime.</Description>
+    <PackageTags>sms;twilio;vonage;messagebird;aws-sns;messaging;notifications</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- CS1591: missing XML comment. GenerateDocumentationFile is enabled for IntelliSense,
+         but we do not enforce doc comments on every member. -->
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="OpenTelemetry.Api" />
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,9 @@
+namespace SmsBridge.Internal.Http;
+
+internal static class HttpClientNames
+{
+    public const string Twilio = "SmsBridge.Twilio";
+    public const string Vonage = "SmsBridge.Vonage";
+    public const string MessageBird = "SmsBridge.MessageBird";
+    public const string AwsSns = "SmsBridge.AwsSns";
+}

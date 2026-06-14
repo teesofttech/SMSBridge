@@ -1,0 +1,6 @@
+@SmsBridge.SwitchProviderSample_HostAddress = http://localhost:5226
+
+GET {{SmsBridge.SwitchProviderSample_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

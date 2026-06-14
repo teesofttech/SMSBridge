@@ -1,0 +1,67 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using SmsBridge.Abstractions;
+using SmsBridge.DependencyInjection;
+using SmsBridge.Options;
+
+namespace SmsBridge.IntegrationTests;
+
+public sealed class DependencyInjectionTests
+{
+    [Fact]
+    public void ISmsClient_CanBeResolvedFromDI()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "twilio";
+                opts.Providers["twilio"] = new SmsProviderOptions { Type = SmsProviderType.Twilio };
+            })
+            .UseTwilio("twilio", o =>
+            {
+                o.AccountSid = "ACtest";
+                o.AuthToken = "token";
+                o.From = "+15551234567";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void BothTwilioAndVonage_CanBeRegisteredTogether()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "twilio";
+                opts.EnableFailover = true;
+                opts.FailoverProvider = "vonage";
+                opts.Providers["twilio"] = new SmsProviderOptions { Type = SmsProviderType.Twilio };
+                opts.Providers["vonage"] = new SmsProviderOptions { Type = SmsProviderType.Vonage };
+            })
+            .UseTwilio("twilio", o =>
+            {
+                o.AccountSid = "ACtest";
+                o.AuthToken = "token";
+                o.From = "+15551234567";
+            })
+            .UseVonage("vonage", o =>
+            {
+                o.ApiKey = "key";
+                o.ApiSecret = "secret";
+                o.From = "MyApp";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetRequiredService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+}

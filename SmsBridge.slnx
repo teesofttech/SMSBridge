@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/SmsBridge.BasicSample/SmsBridge.BasicSample.csproj" />
+    <Project Path="samples/SmsBridge.FailoverSample/SmsBridge.FailoverSample.csproj" />
+    <Project Path="samples/SmsBridge.SwitchProviderSample/SmsBridge.SwitchProviderSample.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/SmsBridge/SmsBridge.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SmsBridge.IntegrationTests/SmsBridge.IntegrationTests.csproj" />
+    <Project Path="tests/SmsBridge.ProviderTests/SmsBridge.ProviderTests.csproj" />
+    <Project Path="tests/SmsBridge.UnitTests/SmsBridge.UnitTests.csproj" />
+    <Project Path="tests/SmsBridge.WebhookTests/SmsBridge.WebhookTests.csproj" />
+  </Folder>
+</Solution>
