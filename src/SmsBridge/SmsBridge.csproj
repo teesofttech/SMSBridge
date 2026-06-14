@@ -6,7 +6,7 @@
     <AssemblyName>SmsBridge</AssemblyName>
 
     <PackageId>SmsBridge</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.0.0</Version>
     <Description>A provider-agnostic .NET SDK for sending SMS through multiple providers using one clean API. Install one SDK. Send SMS through multiple providers. Switch anytime.</Description>
     <PackageTags>sms;twilio;vonage;messagebird;aws-sns;messaging;notifications</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
