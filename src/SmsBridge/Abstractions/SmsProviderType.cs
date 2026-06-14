@@ -9,5 +9,6 @@ public enum SmsProviderType
     AwsSns = 4,
     Infobip = 5,
     Termii = 6,
-    Unifonic = 7
+    Unifonic = 7,
+    Sinch = 8
 }

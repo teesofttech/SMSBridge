@@ -33,6 +33,30 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithSinch()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "sinch";
+                opts.Providers["sinch"] = new SmsProviderOptions { Type = SmsProviderType.Sinch };
+            })
+            .UseSinch("sinch", o =>
+            {
+                o.ServicePlanId = "plan-123";
+                o.ApiToken = "test-token";
+                o.From = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void BothTwilioAndVonage_CanBeRegisteredTogether()
     {
         var services = new ServiceCollection();
