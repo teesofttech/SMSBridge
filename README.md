@@ -143,6 +143,9 @@ When the primary provider returns a transient failure (5xx, throttling, network 
 |---|---|
 | Twilio | Supported |
 | Vonage | Supported |
+| Sinch | Supported |
+| Plivo | Supported |
+| Telnyx | Supported |
 | MessageBird | Planned |
 | AWS SNS | Planned |
 | Infobip | Planned |
