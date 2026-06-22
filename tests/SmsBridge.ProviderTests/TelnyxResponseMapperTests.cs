@@ -93,4 +93,43 @@ public sealed class TelnyxResponseMapperTests
         result.ErrorCode.Should().Be("10033");
         result.ErrorMessage.Should().Be("Invalid phone number");
     }
+
+    [Fact]
+    public void FromErrorResponse_MarksQueueFullAsTransient()
+    {
+        const string json = """
+            {
+                "errors": [
+                    {
+                        "code": "40318",
+                        "detail": "Internal message queue is full"
+                    }
+                ]
+            }
+            """;
+
+        var result = TelnyxSmsResponseMapper.FromErrorResponse("telnyx", 403, json);
+
+        result.Success.Should().BeFalse();
+        result.IsTransientFailure.Should().BeTrue();
+        result.ErrorCode.Should().Be("40318");
+        result.ErrorMessage.Should().Be("Internal message queue is full");
+    }
+
+    [Theory]
+    [InlineData("40300")]
+    [InlineData("40310")]
+    [InlineData("40314")]
+    [InlineData("40322")]
+    [InlineData("40333")]
+    public void FromErrorResponse_DoesNotRetryOtherForbiddenErrors(string errorCode)
+    {
+        var json = $$"""{"errors":[{"code":"{{errorCode}}","detail":"Action required"}]}""";
+
+        var result = TelnyxSmsResponseMapper.FromErrorResponse("telnyx", 403, json);
+
+        result.Success.Should().BeFalse();
+        result.IsTransientFailure.Should().BeFalse();
+        result.ErrorCode.Should().Be(errorCode);
+    }
 }

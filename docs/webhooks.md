@@ -12,7 +12,7 @@ app.MapPost("/webhooks/twilio", async (HttpRequest request, SmsWebhookParserReso
     var parser = resolver.Resolve(SmsProviderType.Twilio);
     var evt = parser.Parse(dict);
 
-    // evt.Status, evt.MessageId, evt.To are normalised across providers
+    // evt.Status, evt.MessageId, evt.To and delivery error metadata are normalised
     return Results.Ok(evt);
 });
 ```
@@ -23,6 +23,7 @@ app.MapPost("/webhooks/twilio", async (HttpRequest request, SmsWebhookParserReso
 |---|---|
 | Twilio | Supported |
 | Vonage | Supported |
+| Plivo | Supported |
 | MessageBird | Planned |
 
 ## Planned

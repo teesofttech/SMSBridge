@@ -11,14 +11,9 @@ internal static class SinchSmsResponseMapper
         var root = doc.RootElement;
 
         var id = root.TryGetProperty("id", out var idEl) ? idEl.GetString() : null;
-        var status = root.TryGetProperty("status", out var statusEl) ? statusEl.GetString() : null;
 
-        var deliveryStatus = MapDeliveryStatus(status);
-
-        if (deliveryStatus == SmsDeliveryStatus.Failed)
-            return SmsSendResult.Failed(providerName, null, $"Sinch status: {status}", isTransient: false, status: deliveryStatus);
-
-        return SmsSendResult.Succeeded(providerName, id, deliveryStatus);
+        // A successful POST creates a batch. Delivery outcomes are reported separately.
+        return SmsSendResult.Succeeded(providerName, id, SmsDeliveryStatus.Queued);
     }
 
     public static SmsSendResult FromErrorResponse(string providerName, int httpStatusCode, string json)
@@ -38,12 +33,4 @@ internal static class SinchSmsResponseMapper
         bool isTransient = httpStatusCode >= 500 || httpStatusCode == 429;
         return SmsSendResult.Failed(providerName, errorCode, errorMessage ?? $"HTTP {httpStatusCode}", isTransient);
     }
-
-    private static SmsDeliveryStatus MapDeliveryStatus(string? status) => status?.ToLowerInvariant() switch
-    {
-        "in_progress" or "in progress" => SmsDeliveryStatus.Queued,
-        "successful" => SmsDeliveryStatus.Delivered,
-        "with_failures" or "failed" => SmsDeliveryStatus.Failed,
-        _ => SmsDeliveryStatus.Unknown
-    };
 }
