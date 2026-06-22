@@ -21,6 +21,11 @@ public sealed class VonageProviderTests
     private static VonageSmsProvider BuildProvider(MockHttpMessageHandler mock)
     {
         var httpClient = mock.ToHttpClient();
+        return BuildProvider(httpClient);
+    }
+
+    private static VonageSmsProvider BuildProvider(HttpClient httpClient)
+    {
         var factory = Substitute.For<IHttpClientFactory>();
         factory.CreateClient(HttpClientNames.Vonage).Returns(httpClient);
         return new VonageSmsProvider("vonage", Options, factory, NullLogger<VonageSmsProvider>.Instance);
@@ -42,6 +47,27 @@ public sealed class VonageProviderTests
 
         result.Success.Should().BeTrue();
         result.ProviderMessageId.Should().Be("V001");
+    }
+
+    [Fact]
+    public async Task SendAsync_UsesFormUrlEncodedRequestBody()
+    {
+        var handler = new RecordingHandler();
+        var provider = BuildProvider(new HttpClient(handler));
+
+        var result = await provider.SendAsync(new SmsMessage
+        {
+            To = "+447700900001",
+            Body = "Hello & goodbye"
+        });
+
+        result.Success.Should().BeTrue();
+        handler.ContentType.Should().Be("application/x-www-form-urlencoded");
+        handler.Body.Should().Contain("from=MyApp");
+        handler.Body.Should().Contain("to=%2B447700900001");
+        handler.Body.Should().Contain("text=Hello+%26+goodbye");
+        handler.Body.Should().Contain("api_key=key123");
+        handler.Body.Should().Contain("api_secret=secret456");
     }
 
     [Fact]
@@ -74,5 +100,30 @@ public sealed class VonageProviderTests
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeTrue();
+    }
+
+    private sealed class RecordingHandler : HttpMessageHandler
+    {
+        public string? ContentType { get; private set; }
+
+        public string? Body { get; private set; }
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            ContentType = request.Content?.Headers.ContentType?.MediaType;
+            Body = request.Content is null
+                ? null
+                : await request.Content.ReadAsStringAsync(cancellationToken);
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(
+                    """{"messages":[{"status":"0","message-id":"V001"}]}""",
+                    System.Text.Encoding.UTF8,
+                    "application/json")
+            };
+        }
     }
 }

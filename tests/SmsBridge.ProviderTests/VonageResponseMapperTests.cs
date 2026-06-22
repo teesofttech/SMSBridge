@@ -49,15 +49,18 @@ public sealed class VonageResponseMapperTests
         result.ErrorMessage.Should().Be("Bad credentials");
     }
 
-    [Fact]
-    public void FromResponse_MarksThrottledAsTransient()
+    [Theory]
+    [InlineData("1")]
+    [InlineData("5")]
+    [InlineData("10")]
+    public void FromResponse_MarksRetryableStatusesAsTransient(string status)
     {
-        const string json = """
+        var json = $$"""
             {
                 "messages": [
                     {
-                        "status": "1",
-                        "error-text": "Throttled"
+                        "status": "{{status}}",
+                        "error-text": "Retry later"
                     }
                 ]
             }
@@ -66,6 +69,7 @@ public sealed class VonageResponseMapperTests
         var result = VonageSmsResponseMapper.FromResponse("vonage", json);
 
         result.Success.Should().BeFalse();
+        result.ErrorCode.Should().Be(status);
         result.IsTransientFailure.Should().BeTrue();
     }
 
