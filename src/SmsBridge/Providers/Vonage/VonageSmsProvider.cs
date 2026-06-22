@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SmsBridge.Abstractions;
 using SmsBridge.Internal.Http;
@@ -8,8 +7,6 @@ namespace SmsBridge.Providers.Vonage;
 
 internal sealed class VonageSmsProvider : ISmsProvider
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     private readonly VonageOptions _options;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<VonageSmsProvider> _logger;
@@ -34,9 +31,8 @@ internal sealed class VonageSmsProvider : ISmsProvider
         _logger.LogDebug("Vonage: sending SMS to {To} via provider '{Provider}'", message.To, Name);
 
         const string url = "https://rest.nexmo.com/sms/json";
-        var body = VonageSmsRequestMapper.ToRequestBody(message, _options);
-        var json = JsonSerializer.Serialize(body, JsonOptions);
-        using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+        var fields = VonageSmsRequestMapper.ToFormFields(message, _options);
+        using var content = new FormUrlEncodedContent(fields);
 
         var client = _httpClientFactory.CreateClient(HttpClientNames.Vonage);
 

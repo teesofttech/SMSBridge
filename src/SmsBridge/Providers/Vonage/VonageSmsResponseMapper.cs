@@ -37,8 +37,9 @@ internal static class VonageSmsResponseMapper
     private static bool IsTransientStatus(string? status) => status switch
     {
         // 1 = throttled, 2 = missing params (permanent), 3 = invalid params (permanent),
-        // 4 = invalid creds (permanent), 5 = internal error (transient), 6 = invalid from (permanent)
-        "1" or "5" => true,
+        // 4 = invalid creds (permanent), 5 = internal error (transient), 6 = invalid from (permanent),
+        // 10 = too many existing binds/connections (back off and retry)
+        "1" or "5" or "10" => true,
         _ => false
     };
 }
