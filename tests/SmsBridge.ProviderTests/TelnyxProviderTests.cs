@@ -70,6 +70,22 @@ public sealed class TelnyxProviderTests
     }
 
     [Fact]
+    public async Task SendAsync_ReturnsTransientFailureWhenQueueIsFull()
+    {
+        var mock = new MockHttpMessageHandler();
+        mock.When("https://api.telnyx.com/*")
+            .Respond(HttpStatusCode.Forbidden, "application/json",
+                """{"errors":[{"code":"40318","detail":"Internal message queue is full"}]}""");
+
+        var provider = BuildProvider(mock);
+        var result = await provider.SendAsync(new SmsMessage { To = "+1", Body = "Hi" });
+
+        result.Success.Should().BeFalse();
+        result.IsTransientFailure.Should().BeTrue();
+        result.ErrorCode.Should().Be("40318");
+    }
+
+    [Fact]
     public async Task SendAsync_UsesFromOnMessage_WhenSupplied()
     {
         var mock = new MockHttpMessageHandler();

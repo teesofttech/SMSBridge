@@ -13,6 +13,12 @@ public sealed class SmsWebhookEvent
 
     public SmsDeliveryStatus Status { get; init; }
 
+    /// <summary>Provider-specific delivery error code, if reported.</summary>
+    public string? ErrorCode { get; init; }
+
+    /// <summary>Whether the reported delivery failure is safe to retry automatically.</summary>
+    public bool IsTransientFailure { get; init; }
+
     public DateTimeOffset Timestamp { get; init; }
 
     public IDictionary<string, string> Raw { get; init; } = new Dictionary<string, string>();
