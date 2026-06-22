@@ -5,8 +5,6 @@ namespace SmsBridge.Providers.Twilio;
 
 internal static class TwilioSmsResponseMapper
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     public static SmsSendResult FromResponse(string providerName, string json)
     {
         using var doc = JsonDocument.Parse(json);
@@ -15,7 +13,7 @@ internal static class TwilioSmsResponseMapper
         // Twilio returns a "status" field and optionally "error_code" / "error_message".
         var status = root.TryGetProperty("status", out var statusEl) ? statusEl.GetString() : null;
         var sid = root.TryGetProperty("sid", out var sidEl) ? sidEl.GetString() : null;
-        var errorCode = root.TryGetProperty("error_code", out var ecEl) ? ecEl.GetString() : null;
+        var errorCode = root.TryGetProperty("error_code", out var ecEl) ? ReadErrorCode(ecEl) : null;
         var errorMessage = root.TryGetProperty("error_message", out var emEl) ? emEl.GetString() : null;
 
         var deliveryStatus = MapDeliveryStatus(status);
@@ -60,8 +58,17 @@ internal static class TwilioSmsResponseMapper
 
     private static bool IsTransientError(string? code) => code switch
     {
-        // 30001-30008 are queue/carrier issues — transient
-        "30001" or "30002" or "30003" or "30004" or "30005" => true,
+        // 30001 is queue overflow and Twilio explicitly recommends retrying later.
+        // 30003 can represent a temporarily unreachable handset or carrier path.
+        // Other delivery errors require remediation or are too ambiguous to retry safely.
+        "30001" or "30003" => true,
         _ => false
+    };
+
+    private static string? ReadErrorCode(JsonElement element) => element.ValueKind switch
+    {
+        JsonValueKind.Number => element.GetRawText(),
+        JsonValueKind.String => element.GetString(),
+        _ => null
     };
 }

@@ -26,13 +26,13 @@ public sealed class TwilioResponseMapperTests
     }
 
     [Fact]
-    public void FromResponse_MapsFailedResponse()
+    public void FromResponse_MapsNumericErrorCode()
     {
         const string json = """
             {
                 "sid": "SM789",
                 "status": "failed",
-                "error_code": "30008",
+                "error_code": 30008,
                 "error_message": "Unknown error"
             }
             """;
@@ -41,7 +41,73 @@ public sealed class TwilioResponseMapperTests
 
         result.Success.Should().BeFalse();
         result.ErrorCode.Should().Be("30008");
+        result.IsTransientFailure.Should().BeFalse();
         result.Status.Should().Be(SmsDeliveryStatus.Failed);
+    }
+
+    [Theory]
+    [InlineData("30001")]
+    [InlineData("30003")]
+    public void FromResponse_MarksDocumentedRetryableDeliveryErrorsAsTransient(string errorCode)
+    {
+        var json = $$"""
+            {
+                "sid": "SM789",
+                "status": "undelivered",
+                "error_code": {{errorCode}},
+                "error_message": "Delivery failed"
+            }
+            """;
+
+        var result = TwilioSmsResponseMapper.FromResponse("twilio", json);
+
+        result.Success.Should().BeFalse();
+        result.ErrorCode.Should().Be(errorCode);
+        result.IsTransientFailure.Should().BeTrue();
+        result.Status.Should().Be(SmsDeliveryStatus.Undelivered);
+    }
+
+    [Theory]
+    [InlineData("30002")]
+    [InlineData("30004")]
+    [InlineData("30005")]
+    [InlineData("30006")]
+    [InlineData("30007")]
+    [InlineData("30008")]
+    public void FromResponse_MarksNonRetryableDeliveryErrorsAsNonTransient(string errorCode)
+    {
+        var json = $$"""
+            {
+                "sid": "SM789",
+                "status": "failed",
+                "error_code": {{errorCode}},
+                "error_message": "Delivery failed"
+            }
+            """;
+
+        var result = TwilioSmsResponseMapper.FromResponse("twilio", json);
+
+        result.Success.Should().BeFalse();
+        result.ErrorCode.Should().Be(errorCode);
+        result.IsTransientFailure.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FromResponse_AcceptsLegacyStringErrorCode()
+    {
+        const string json = """
+            {
+                "sid": "SM789",
+                "status": "failed",
+                "error_code": "30002",
+                "error_message": "Account suspended"
+            }
+            """;
+
+        var result = TwilioSmsResponseMapper.FromResponse("twilio", json);
+
+        result.ErrorCode.Should().Be("30002");
+        result.IsTransientFailure.Should().BeFalse();
     }
 
     [Fact]
