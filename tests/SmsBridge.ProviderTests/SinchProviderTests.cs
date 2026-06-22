@@ -31,7 +31,7 @@ public sealed class SinchProviderTests
     {
         var mock = new MockHttpMessageHandler();
         mock.When("https://sms.api.sinch.com/*")
-            .Respond("application/json", """{"id":"batch-123","status":"In Progress"}""");
+            .Respond("application/json", """{"id":"batch-123","to":["+447700900001"],"from":"SmsBridge","body":"Hi"}""");
 
         var provider = BuildProvider(mock);
         var result = await provider.SendAsync(new SmsMessage { To = "+447700900001", Body = "Hi" });
@@ -39,6 +39,7 @@ public sealed class SinchProviderTests
         result.Success.Should().BeTrue();
         result.Provider.Should().Be("sinch");
         result.ProviderMessageId.Should().Be("batch-123");
+        result.Status.Should().Be(SmsDeliveryStatus.Queued);
     }
 
     [Fact]
@@ -74,7 +75,7 @@ public sealed class SinchProviderTests
     {
         var mock = new MockHttpMessageHandler();
         mock.When("https://sms.api.sinch.com/*")
-            .Respond("application/json", """{"id":"batch-999","status":"In Progress"}""");
+            .Respond("application/json", """{"id":"batch-999","to":["+447700900001"],"from":"CustomSender","body":"Hi"}""");
 
         var provider = BuildProvider(mock);
         var result = await provider.SendAsync(new SmsMessage

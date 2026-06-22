@@ -6,9 +6,16 @@ namespace SmsBridge.ProviderTests;
 public sealed class SinchResponseMapperTests
 {
     [Fact]
-    public void FromResponse_MapsInProgressResponse()
+    public void FromResponse_MapsCreatedBatchAsQueued()
     {
-        const string json = """{"id":"batch-123","status":"In Progress"}""";
+        const string json = """
+            {
+                "id": "batch-123",
+                "to": ["+15551231234"],
+                "from": "+15551230000",
+                "body": "Hello"
+            }
+            """;
 
         var result = SinchSmsResponseMapper.FromResponse("sinch", json);
 
@@ -19,25 +26,14 @@ public sealed class SinchResponseMapperTests
     }
 
     [Fact]
-    public void FromResponse_MapsSuccessfulResponse()
+    public void FromResponse_DoesNotTreatBatchStatusAsDeliveryStatus()
     {
-        const string json = """{"id":"batch-456","status":"Successful"}""";
+        const string json = """{"id":"batch-456","status":"Failed"}""";
 
         var result = SinchSmsResponseMapper.FromResponse("sinch", json);
 
         result.Success.Should().BeTrue();
-        result.Status.Should().Be(SmsDeliveryStatus.Delivered);
-    }
-
-    [Fact]
-    public void FromResponse_MapsFailedResponse()
-    {
-        const string json = """{"id":"batch-789","status":"Failed"}""";
-
-        var result = SinchSmsResponseMapper.FromResponse("sinch", json);
-
-        result.Success.Should().BeFalse();
-        result.Status.Should().Be(SmsDeliveryStatus.Failed);
+        result.Status.Should().Be(SmsDeliveryStatus.Queued);
     }
 
     [Fact]
@@ -61,9 +57,18 @@ public sealed class SinchResponseMapperTests
     [Fact]
     public void FromErrorResponse_MarksNonTransientOn4xx()
     {
-        var result = SinchSmsResponseMapper.FromErrorResponse("sinch", 400, "{}");
+        const string json = """
+            {
+                "code": "syntax_invalid_parameter_format",
+                "text": "The recipient number is invalid."
+            }
+            """;
+
+        var result = SinchSmsResponseMapper.FromErrorResponse("sinch", 400, json);
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeFalse();
+        result.ErrorCode.Should().Be("syntax_invalid_parameter_format");
+        result.ErrorMessage.Should().Be("The recipient number is invalid.");
     }
 }
