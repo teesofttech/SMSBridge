@@ -82,9 +82,22 @@ Telnyx delivery webhooks are configured on the Messaging Profile rather than per
 Uses the MessageBird SMS API directly with `AccessKey` authentication. SMSBridge
 submits URL-encoded message fields and requests automatic GSM/Unicode data coding.
 
+## Infobip
+
+```csharp
+.UseInfobip("infobip", o =>
+{
+    o.ApiKey  = "your-api-key";
+    o.BaseUrl = "https://xxxxx.api.infobip.com";
+    o.From    = "MyApp";
+})
+```
+
+Uses Infobip's current SMS API v3 endpoint with `App` API-key authentication.
+The base URL is account-specific and must be an absolute HTTPS URL.
+
 ## Planned Providers
 
 - AWS SNS
-- Infobip
 - Termii
 - Unifonic
