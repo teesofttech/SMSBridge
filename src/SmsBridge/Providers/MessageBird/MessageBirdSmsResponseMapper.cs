@@ -86,15 +86,15 @@ internal static class MessageBirdSmsResponseMapper
         return true;
     }
 
-    private static SmsDeliveryStatus MapStatus(string? status) => status?.ToLowerInvariant() switch
-    {
-        "scheduled" or "buffered" => SmsDeliveryStatus.Queued,
-        "sent" => SmsDeliveryStatus.Sent,
-        "delivered" => SmsDeliveryStatus.Delivered,
-        "expired" => SmsDeliveryStatus.Undelivered,
-        "delivery_failed" => SmsDeliveryStatus.Failed,
-        _ => SmsDeliveryStatus.Accepted
-    };
+private static SmsDeliveryStatus MapStatus(string? status) => status?.ToLowerInvariant() switch
+{
+    "scheduled" or "buffered" => SmsDeliveryStatus.Queued,
+    "sent" => SmsDeliveryStatus.Sent,
+    "delivered" => SmsDeliveryStatus.Delivered,
+    "expired" => SmsDeliveryStatus.Undelivered,
+    "delivery_failed" => SmsDeliveryStatus.Failed,
+    _ => SmsDeliveryStatus.Unknown
+};
 
     private static string? ReadString(JsonElement element, string propertyName)
     {
