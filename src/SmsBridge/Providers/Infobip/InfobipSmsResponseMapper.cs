@@ -90,7 +90,7 @@ internal static class InfobipSmsResponseMapper
             "DELIVERED" => SmsDeliveryStatus.Delivered,
             "EXPIRED" or "UNDELIVERABLE" => SmsDeliveryStatus.Undelivered,
             "REJECTED" => SmsDeliveryStatus.Failed,
-            _ => SmsDeliveryStatus.Accepted
+            _ => SmsDeliveryStatus.Unknown
         };
 
     private static string? ReadString(JsonElement element, string propertyName)
