@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - MessageBird SMS provider with documented `AccessKey` authentication, request mapping,
   response/error normalization, dependency injection registration, and sample configuration
+- Infobip SMS provider using the current SMS API v3, `App` authentication, response/error
+  normalization, dependency injection registration, and sample configuration
 
 ## [0.1.0] - 2026-06-14
 

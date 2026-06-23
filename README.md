@@ -184,7 +184,7 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 | Telnyx | Supported |
 | MessageBird | Supported |
 | AWS SNS | Planned |
-| Infobip | Planned |
+| Infobip | Supported |
 | Termii | Planned |
 | Unifonic | Planned |
 
@@ -193,7 +193,6 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 ## Roadmap
 
 - AWS SNS provider
-- Infobip provider
 - Termii provider
 - Unifonic provider
 - OpenTelemetry metrics

@@ -4,7 +4,7 @@ using SmsBridge.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Twilio, Vonage, and MessageBird are configured.
+// Twilio, Vonage, MessageBird, and Infobip are configured.
 // Switch providers by changing "DefaultProvider" in appsettings.json only.
 // No application code changes required.
 builder.Services.AddSmsBridge(opts =>
@@ -13,6 +13,7 @@ builder.Services.AddSmsBridge(opts =>
         opts.Providers["twilio"] = new SmsProviderOptions { Type = SmsProviderType.Twilio };
         opts.Providers["vonage"] = new SmsProviderOptions { Type = SmsProviderType.Vonage };
         opts.Providers["messagebird"] = new SmsProviderOptions { Type = SmsProviderType.MessageBird };
+        opts.Providers["infobip"] = new SmsProviderOptions { Type = SmsProviderType.Infobip };
     })
     .UseTwilio("twilio", o =>
     {
@@ -30,6 +31,12 @@ builder.Services.AddSmsBridge(opts =>
     {
         o.AccessKey = builder.Configuration["SmsBridge:Providers:messagebird:AccessKey"]!;
         o.From      = builder.Configuration["SmsBridge:Providers:messagebird:From"]!;
+    })
+    .UseInfobip("infobip", o =>
+    {
+        o.ApiKey  = builder.Configuration["SmsBridge:Providers:infobip:ApiKey"]!;
+        o.BaseUrl = builder.Configuration["SmsBridge:Providers:infobip:BaseUrl"]!;
+        o.From    = builder.Configuration["SmsBridge:Providers:infobip:From"]!;
     });
 
 var app = builder.Build();

@@ -130,6 +130,33 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithInfobip()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "infobip";
+                opts.Providers["infobip"] = new SmsProviderOptions
+                {
+                    Type = SmsProviderType.Infobip
+                };
+            })
+            .UseInfobip("infobip", o =>
+            {
+                o.ApiKey = "test-api-key";
+                o.BaseUrl = "https://example.api.infobip.com";
+                o.From = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void BothTwilioAndVonage_CanBeRegisteredTogether()
     {
         var services = new ServiceCollection();
