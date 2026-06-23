@@ -182,7 +182,7 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 | Sinch | Supported |
 | Plivo | Supported |
 | Telnyx | Supported |
-| MessageBird | Planned |
+| MessageBird | Supported |
 | AWS SNS | Planned |
 | Infobip | Planned |
 | Termii | Planned |
@@ -192,7 +192,6 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 
 ## Roadmap
 
-- MessageBird provider
 - AWS SNS provider
 - Infobip provider
 - Termii provider

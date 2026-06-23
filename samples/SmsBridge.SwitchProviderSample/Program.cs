@@ -4,7 +4,7 @@ using SmsBridge.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Both Twilio and Vonage are configured.
+// Twilio, Vonage, and MessageBird are configured.
 // Switch providers by changing "DefaultProvider" in appsettings.json only.
 // No application code changes required.
 builder.Services.AddSmsBridge(opts =>
@@ -12,6 +12,7 @@ builder.Services.AddSmsBridge(opts =>
         opts.DefaultProvider = builder.Configuration["SmsBridge:DefaultProvider"]!;
         opts.Providers["twilio"] = new SmsProviderOptions { Type = SmsProviderType.Twilio };
         opts.Providers["vonage"] = new SmsProviderOptions { Type = SmsProviderType.Vonage };
+        opts.Providers["messagebird"] = new SmsProviderOptions { Type = SmsProviderType.MessageBird };
     })
     .UseTwilio("twilio", o =>
     {
@@ -24,6 +25,11 @@ builder.Services.AddSmsBridge(opts =>
         o.ApiKey    = builder.Configuration["SmsBridge:Providers:vonage:ApiKey"]!;
         o.ApiSecret = builder.Configuration["SmsBridge:Providers:vonage:ApiSecret"]!;
         o.From      = builder.Configuration["SmsBridge:Providers:vonage:From"]!;
+    })
+    .UseMessageBird("messagebird", o =>
+    {
+        o.AccessKey = builder.Configuration["SmsBridge:Providers:messagebird:AccessKey"]!;
+        o.From      = builder.Configuration["SmsBridge:Providers:messagebird:From"]!;
     });
 
 var app = builder.Build();
