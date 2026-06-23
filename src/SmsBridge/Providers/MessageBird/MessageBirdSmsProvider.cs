@@ -67,7 +67,8 @@ internal sealed class MessageBirdSmsProvider : ISmsProvider
                 mayHaveBeenAccepted: true);
         }
 
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+using var responseLifetime = response;
+var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (response.IsSuccessStatusCode)
         {
