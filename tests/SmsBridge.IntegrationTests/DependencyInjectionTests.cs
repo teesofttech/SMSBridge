@@ -104,6 +104,32 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithMessageBird()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "messagebird";
+                opts.Providers["messagebird"] = new SmsProviderOptions
+                {
+                    Type = SmsProviderType.MessageBird
+                };
+            })
+            .UseMessageBird("messagebird", o =>
+            {
+                o.AccessKey = "test-access-key";
+                o.From = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void BothTwilioAndVonage_CanBeRegisteredTogether()
     {
         var services = new ServiceCollection();

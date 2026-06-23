@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- MessageBird SMS provider with documented `AccessKey` authentication, request mapping,
+  response/error normalization, dependency injection registration, and sample configuration
+
 ## [0.1.0] - 2026-06-14
 
 ### Added

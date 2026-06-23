@@ -69,9 +69,21 @@ Uses the Plivo SMS REST API directly. No official Plivo SDK dependency.
 Uses the Telnyx messaging REST API directly. No official Telnyx SDK dependency.
 Telnyx delivery webhooks are configured on the Messaging Profile rather than per message.
 
+## MessageBird
+
+```csharp
+.UseMessageBird("messagebird", o =>
+{
+    o.AccessKey = "live_xxxxxxxx";
+    o.From      = "MyApp";
+})
+```
+
+Uses the MessageBird SMS API directly with `AccessKey` authentication. SMSBridge
+submits URL-encoded message fields and requests automatic GSM/Unicode data coding.
+
 ## Planned Providers
 
-- MessageBird
 - AWS SNS
 - Infobip
 - Termii

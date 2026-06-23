@@ -1,6 +1,6 @@
 namespace SmsBridge.Options;
 
-/// <summary>MessageBird provider options — planned, not yet implemented.</summary>
+/// <summary>Configuration for the MessageBird SMS provider.</summary>
 public sealed class MessageBirdOptions
 {
     public const string SectionKey = "MessageBird";
