@@ -32,7 +32,7 @@ internal sealed class TwilioSmsProvider : ISmsProvider
         _logger.LogDebug("Twilio: sending SMS to {To} via provider '{Provider}'", message.To, Name);
 
         var url = $"https://api.twilio.com/2010-04-01/Accounts/{_options.AccountSid}/Messages.json";
-        var fields = TwilioSmsRequestMapper.ToFormFields(message, _options.From);
+        var fields = TwilioSmsRequestMapper.ToFormFields(message, _options);
         var content = new FormUrlEncodedContent(fields);
 
         var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_options.AccountSid}:{_options.AuthToken}"));
@@ -52,7 +52,12 @@ internal sealed class TwilioSmsProvider : ISmsProvider
         catch (HttpRequestException ex)
         {
             _logger.LogWarning(ex, "Twilio: HTTP request failed for provider '{Provider}'", Name);
-            return SmsSendResult.Failed(Name, null, ex.Message, isTransient: true);
+            return SmsSendResult.Failed(
+                Name,
+                null,
+                ex.Message,
+                isTransient: true,
+                mayHaveBeenAccepted: true);
         }
 
         var body = await response.Content.ReadAsStringAsync(cancellationToken);

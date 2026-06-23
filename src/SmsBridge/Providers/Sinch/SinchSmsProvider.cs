@@ -31,8 +31,8 @@ internal sealed class SinchSmsProvider : ISmsProvider
     {
         _logger.LogDebug("Sinch: sending SMS to {To} via provider '{Provider}'", message.To, Name);
 
-        var url = $"https://sms.api.sinch.com/xms/v1/{_options.ServicePlanId}/batches";
-        var body = SinchSmsRequestMapper.ToRequestBody(message, _options.From);
+        var url = $"{_options.BaseUrl}/xms/v1/{_options.ServicePlanId}/batches";
+        var body = SinchSmsRequestMapper.ToRequestBody(message, _options);
 
         var client = _httpClientFactory.CreateClient(HttpClientNames.Sinch);
         using var request = new HttpRequestMessage(HttpMethod.Post, url)
@@ -50,7 +50,12 @@ internal sealed class SinchSmsProvider : ISmsProvider
         catch (HttpRequestException ex)
         {
             _logger.LogWarning(ex, "Sinch: HTTP request failed for provider '{Provider}'", Name);
-            return SmsSendResult.Failed(Name, null, ex.Message, isTransient: true);
+            return SmsSendResult.Failed(
+                Name,
+                null,
+                ex.Message,
+                isTransient: true,
+                mayHaveBeenAccepted: true);
         }
 
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);

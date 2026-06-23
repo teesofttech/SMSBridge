@@ -26,6 +26,12 @@ public sealed class SmsSendResult
     /// </summary>
     public bool IsTransientFailure { get; init; }
 
+    /// <summary>
+    /// When true, the provider may have accepted the message even though the request did not
+    /// complete successfully. Automatic failover is suppressed to avoid duplicate delivery.
+    /// </summary>
+    public bool MayHaveBeenAccepted { get; init; }
+
     public static SmsSendResult Succeeded(string provider, string? messageId, SmsDeliveryStatus status = SmsDeliveryStatus.Accepted) =>
         new()
         {
@@ -40,7 +46,8 @@ public sealed class SmsSendResult
         string? errorCode,
         string? errorMessage,
         bool isTransient = false,
-        SmsDeliveryStatus status = SmsDeliveryStatus.Failed) =>
+        SmsDeliveryStatus status = SmsDeliveryStatus.Failed,
+        bool mayHaveBeenAccepted = false) =>
         new()
         {
             Success = false,
@@ -48,6 +55,7 @@ public sealed class SmsSendResult
             ErrorCode = errorCode,
             ErrorMessage = errorMessage,
             IsTransientFailure = isTransient,
+            MayHaveBeenAccepted = mayHaveBeenAccepted,
             Status = status
         };
 }

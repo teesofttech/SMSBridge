@@ -1,13 +1,27 @@
 using SmsBridge.Abstractions;
+using SmsBridge.Options;
 
 namespace SmsBridge.Providers.Plivo;
 
 internal static class PlivoSmsRequestMapper
 {
-    public static object ToRequestBody(SmsMessage message, string defaultFrom) => new
+    public static IReadOnlyDictionary<string, object> ToRequestBody(
+        SmsMessage message,
+        PlivoOptions options)
     {
-        src = message.From ?? defaultFrom,
-        dst = message.To,
-        text = message.Body
-    };
+        var body = new Dictionary<string, object>
+        {
+            ["src"] = message.From ?? options.From,
+            ["dst"] = message.To,
+            ["text"] = message.Body
+        };
+
+        if (!string.IsNullOrWhiteSpace(options.CallbackUrl))
+        {
+            body["url"] = options.CallbackUrl;
+            body["method"] = "POST";
+        }
+
+        return body;
+    }
 }

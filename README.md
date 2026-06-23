@@ -41,6 +41,7 @@ builder.Services.AddSmsBridge(opts =>
         o.AccountSid = builder.Configuration["SmsBridge:Providers:twilio:AccountSid"];
         o.AuthToken  = builder.Configuration["SmsBridge:Providers:twilio:AuthToken"];
         o.From       = builder.Configuration["SmsBridge:Providers:twilio:From"];
+        o.StatusCallbackUrl = "https://example.com/webhooks/twilio"; // optional
     });
 ```
 
@@ -133,7 +134,42 @@ builder.Services.AddSmsBridge(opts =>
     .UseVonage("vonage", o => { ... });
 ```
 
-When the primary provider returns a transient failure (5xx, throttling, network error), SMSBridge automatically retries via the failover provider. Application code is unchanged.
+SMSBridge fails over only when the primary failure is transient and known not to have
+accepted the message, such as rate limiting or an explicit provider rejection. It does
+not automatically fail over after a connection failure or `5xx` response because the
+primary may already have accepted the message and retrying through another provider
+could deliver a duplicate.
+
+See [docs/failover.md](docs/failover.md) for the complete safety rules.
+
+---
+
+## Delivery Status Callbacks
+
+Callback URLs can be configured for providers that support per-message delivery reports:
+
+```csharp
+.UseTwilio("twilio", o =>
+{
+    // credentials omitted
+    o.StatusCallbackUrl = "https://example.com/webhooks/twilio";
+})
+.UsePlivo("plivo", o =>
+{
+    // credentials omitted
+    o.CallbackUrl = "https://example.com/webhooks/plivo";
+})
+.UseSinch("sinch", o =>
+{
+    // credentials omitted
+    o.BaseUrl = "https://eu.sms.api.sinch.com"; // defaults to US
+    o.CallbackUrl = "https://example.com/webhooks/sinch";
+});
+```
+
+Twilio, Vonage, and Plivo callbacks use form payloads. Sinch and Telnyx callbacks
+use JSON payloads. Resolve the provider parser with `SmsWebhookParserResolver`, then
+call `Parse(...)` or `ParseJson(...)` as appropriate.
 
 ---
 
@@ -162,7 +198,6 @@ When the primary provider returns a transient failure (5xx, throttling, network 
 - Termii provider
 - Unifonic provider
 - OpenTelemetry metrics
-- Delivery receipt normalisation
 - Webhook signature verification
 - Database outbox pattern
 - Advanced retry policies

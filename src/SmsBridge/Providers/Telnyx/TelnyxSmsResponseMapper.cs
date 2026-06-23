@@ -53,20 +53,14 @@ internal static class TelnyxSmsResponseMapper
         }
         catch (JsonException) { /* best-effort */ }
 
-        bool isTransient =
-            httpStatusCode >= 500 ||
-            httpStatusCode == 429 ||
-            IsTransientRequestError(errorCode);
-        return SmsSendResult.Failed(providerName, errorCode, errorMessage ?? $"HTTP {httpStatusCode}", isTransient);
+        bool isTransient = httpStatusCode >= 500 || httpStatusCode == 429;
+        return SmsSendResult.Failed(
+            providerName,
+            errorCode,
+            errorMessage ?? $"HTTP {httpStatusCode}",
+            isTransient,
+            mayHaveBeenAccepted: httpStatusCode >= 500);
     }
-
-    private static bool IsTransientRequestError(string? errorCode) => errorCode switch
-    {
-        // 40318 means Telnyx's internal message queue is full.
-        // Their documented action is to back off and retry after a delay.
-        "40318" => true,
-        _ => false
-    };
 
     private static SmsDeliveryStatus MapDeliveryStatus(string? status) => status?.ToLowerInvariant() switch
     {

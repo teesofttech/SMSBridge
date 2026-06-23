@@ -35,7 +35,8 @@ public static class SmsBridgeProviderBuilder
         {
             AccountSid = config.AccountSid,
             AuthToken = config.AuthToken,
-            From = config.From
+            From = config.From,
+            StatusCallbackUrl = config.StatusCallbackUrl
         };
 
         builder.Services.AddHttpClient(HttpClientNames.Twilio);
@@ -137,7 +138,8 @@ public static class SmsBridgeProviderBuilder
         {
             AuthId = config.AuthId,
             AuthToken = config.AuthToken,
-            From = config.From
+            From = config.From,
+            CallbackUrl = config.CallbackUrl
         };
 
         builder.Services.AddHttpClient(HttpClientNames.Plivo);
@@ -167,12 +169,17 @@ public static class SmsBridgeProviderBuilder
             throw new SmsBridgeException($"Sinch provider '{name}': ApiToken is required.");
         if (string.IsNullOrWhiteSpace(config.From))
             throw new SmsBridgeException($"Sinch provider '{name}': From is required.");
+        if (!Uri.TryCreate(config.BaseUrl, UriKind.Absolute, out var sinchBaseUri) ||
+            sinchBaseUri.Scheme != Uri.UriSchemeHttps)
+            throw new SmsBridgeException($"Sinch provider '{name}': BaseUrl must be an absolute HTTPS URL.");
 
         var options = new SinchOptions
         {
             ServicePlanId = config.ServicePlanId,
             ApiToken = config.ApiToken,
-            From = config.From
+            From = config.From,
+            BaseUrl = config.BaseUrl.TrimEnd('/'),
+            CallbackUrl = config.CallbackUrl
         };
 
         builder.Services.AddHttpClient(HttpClientNames.Sinch);
@@ -201,6 +208,7 @@ public sealed class PlivoProviderConfig
     public string? AuthId { get; set; }
     public string? AuthToken { get; set; }
     public string? From { get; set; }
+    public string? CallbackUrl { get; set; }
 }
 
 /// <summary>Mutable configuration object used when calling <c>.UseSinch()</c>.</summary>
@@ -209,6 +217,8 @@ public sealed class SinchProviderConfig
     public string? ServicePlanId { get; set; }
     public string? ApiToken { get; set; }
     public string? From { get; set; }
+    public string BaseUrl { get; set; } = "https://us.sms.api.sinch.com";
+    public string? CallbackUrl { get; set; }
 }
 
 /// <summary>Mutable configuration object used when calling <c>.UseTwilio()</c>.</summary>
@@ -217,6 +227,7 @@ public sealed class TwilioProviderConfig
     public string? AccountSid { get; set; }
     public string? AuthToken { get; set; }
     public string? From { get; set; }
+    public string? StatusCallbackUrl { get; set; }
 }
 
 /// <summary>Mutable configuration object used when calling <c>.UseVonage()</c>.</summary>

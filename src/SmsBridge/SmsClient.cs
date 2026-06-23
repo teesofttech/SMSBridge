@@ -56,7 +56,10 @@ internal sealed class SmsClient : ISmsClient
         _logger.LogWarning("SmsBridge: SMS send failed via '{Provider}', error={Error}, transient={IsTransient}",
             provider.Name, result.ErrorMessage, result.IsTransientFailure);
 
-        if (result.IsTransientFailure && _options.EnableFailover && string.IsNullOrWhiteSpace(message.Provider))
+        if (result.IsTransientFailure &&
+            !result.MayHaveBeenAccepted &&
+            _options.EnableFailover &&
+            string.IsNullOrWhiteSpace(message.Provider))
         {
             var failover = _router.ResolveFailover();
             if (failover is not null)

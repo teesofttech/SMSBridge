@@ -33,7 +33,7 @@ internal sealed class PlivoSmsProvider : ISmsProvider
         _logger.LogDebug("Plivo: sending SMS to {To} via provider '{Provider}'", message.To, Name);
 
         var url = $"https://api.plivo.com/v1/Account/{_options.AuthId}/Message/";
-        var body = PlivoSmsRequestMapper.ToRequestBody(message, _options.From);
+        var body = PlivoSmsRequestMapper.ToRequestBody(message, _options);
 
         var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_options.AuthId}:{_options.AuthToken}"));
 
@@ -53,7 +53,12 @@ internal sealed class PlivoSmsProvider : ISmsProvider
         catch (HttpRequestException ex)
         {
             _logger.LogWarning(ex, "Plivo: HTTP request failed for provider '{Provider}'", Name);
-            return SmsSendResult.Failed(Name, null, ex.Message, isTransient: true);
+            return SmsSendResult.Failed(
+                Name,
+                null,
+                ex.Message,
+                isTransient: true,
+                mayHaveBeenAccepted: true);
         }
 
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);

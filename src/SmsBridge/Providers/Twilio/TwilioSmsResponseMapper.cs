@@ -21,7 +21,9 @@ internal static class TwilioSmsResponseMapper
         if (deliveryStatus == SmsDeliveryStatus.Failed || deliveryStatus == SmsDeliveryStatus.Undelivered)
         {
             return SmsSendResult.Failed(providerName, errorCode, errorMessage,
-                isTransient: IsTransientError(errorCode), status: deliveryStatus);
+                isTransient: IsTransientError(errorCode),
+                status: deliveryStatus,
+                mayHaveBeenAccepted: true);
         }
 
         return SmsSendResult.Succeeded(providerName, sid, deliveryStatus);
@@ -42,7 +44,12 @@ internal static class TwilioSmsResponseMapper
         catch (JsonException) { /* best-effort */ }
 
         bool isTransient = httpStatusCode >= 500 || httpStatusCode == 429;
-        return SmsSendResult.Failed(providerName, errorCode, errorMessage ?? $"HTTP {httpStatusCode}", isTransient);
+        return SmsSendResult.Failed(
+            providerName,
+            errorCode,
+            errorMessage ?? $"HTTP {httpStatusCode}",
+            isTransient,
+            mayHaveBeenAccepted: httpStatusCode >= 500);
     }
 
     private static SmsDeliveryStatus MapDeliveryStatus(string? status) => status?.ToLowerInvariant() switch

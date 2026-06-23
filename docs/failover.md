@@ -17,10 +17,15 @@ builder.Services.AddSmsBridge(opts =>
 
 ## Failover Rules
 
-- Failover only triggers on transient failures (5xx, network errors, throttling).
+- Failover only triggers when a failure is transient and known not to have accepted the message.
+- Rate limiting and explicit pre-acceptance provider rejections may trigger failover.
+- Connection failures and provider `5xx` responses do not trigger automatic failover because
+  the primary provider may have accepted the message before the response was lost.
 - Failover does not trigger on permanent failures (invalid number, authentication error).
 - Failover does not trigger when the message has an explicit `Provider` override.
-- SMSBridge never silently sends duplicate messages.
+- This conservative policy prevents SMSBridge from silently creating a duplicate through
+  automatic failover. Applications that manually retry ambiguous failures must provide their
+  own idempotency or reconciliation strategy.
 
 ## Result
 

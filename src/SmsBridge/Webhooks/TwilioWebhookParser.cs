@@ -12,6 +12,7 @@ public sealed class TwilioWebhookParser : ISmsWebhookParser
         payload.TryGetValue("MessageSid", out var messageId);
         payload.TryGetValue("To", out var to);
         payload.TryGetValue("MessageStatus", out var status);
+        payload.TryGetValue("ErrorCode", out var errorCode);
 
         return new SmsWebhookEvent
         {
@@ -19,6 +20,8 @@ public sealed class TwilioWebhookParser : ISmsWebhookParser
             MessageId = messageId,
             To = to,
             Status = MapStatus(status),
+            ErrorCode = string.IsNullOrWhiteSpace(errorCode) ? null : errorCode,
+            IsTransientFailure = IsTransientError(errorCode),
             Timestamp = DateTimeOffset.UtcNow,
             Raw = new Dictionary<string, string>(payload)
         };
@@ -33,5 +36,11 @@ public sealed class TwilioWebhookParser : ISmsWebhookParser
         "undelivered" => SmsDeliveryStatus.Undelivered,
         "failed" => SmsDeliveryStatus.Failed,
         _ => SmsDeliveryStatus.Unknown
+    };
+
+    private static bool IsTransientError(string? errorCode) => errorCode switch
+    {
+        "30001" or "30003" => true,
+        _ => false
     };
 }

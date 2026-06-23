@@ -32,7 +32,8 @@ internal static class VonageSmsResponseMapper
             providerName,
             httpStatusCode.ToString(),
             $"Vonage API returned HTTP {httpStatusCode}",
-            isTransient: httpStatusCode >= 500 || httpStatusCode == 429);
+            isTransient: httpStatusCode >= 500 || httpStatusCode == 429,
+            mayHaveBeenAccepted: httpStatusCode >= 500);
 
     private static bool IsTransientStatus(string? status) => status switch
     {

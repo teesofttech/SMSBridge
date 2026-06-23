@@ -9,4 +9,6 @@ public sealed class PlivoOptions
     public required string AuthToken { get; init; }
 
     public required string From { get; init; }
+
+    public string? CallbackUrl { get; init; }
 }

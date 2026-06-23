@@ -32,6 +32,11 @@ internal static class PlivoSmsResponseMapper
         catch (JsonException) { /* best-effort */ }
 
         bool isTransient = httpStatusCode >= 500 || httpStatusCode == 429;
-        return SmsSendResult.Failed(providerName, null, errorMessage ?? $"HTTP {httpStatusCode}", isTransient);
+        return SmsSendResult.Failed(
+            providerName,
+            null,
+            errorMessage ?? $"HTTP {httpStatusCode}",
+            isTransient,
+            mayHaveBeenAccepted: httpStatusCode >= 500);
     }
 }

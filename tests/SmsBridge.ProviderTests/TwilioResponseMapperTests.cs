@@ -117,6 +117,7 @@ public sealed class TwilioResponseMapperTests
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeTrue();
+        result.MayHaveBeenAccepted.Should().BeTrue();
     }
 
     [Fact]
@@ -126,5 +127,14 @@ public sealed class TwilioResponseMapperTests
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FromErrorResponse_Marks429AsSafeForFailover()
+    {
+        var result = TwilioSmsResponseMapper.FromErrorResponse("twilio", 429, "{}");
+
+        result.IsTransientFailure.Should().BeTrue();
+        result.MayHaveBeenAccepted.Should().BeFalse();
     }
 }
