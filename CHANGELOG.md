@@ -9,12 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-23
+
 ### Added
 
 - MessageBird SMS provider with documented `AccessKey` authentication, request mapping,
   response/error normalization, dependency injection registration, and sample configuration
 - Infobip SMS provider using the current SMS API v3, `App` authentication, response/error
   normalization, dependency injection registration, and sample configuration
+- Delivery report parsing for Plivo, Sinch, and Telnyx
+- Normalized delivery error codes and transient-failure metadata for provider webhooks
+- Optional delivery callback configuration for Twilio, Plivo, and Sinch
+- Configurable regional Sinch SMS API base URL
+
+### Changed
+
+- Aligned provider request, response, and retry behavior with current official documentation
+- Added automatic Unicode selection for Vonage messages outside GSM-7
+- Made automatic failover conservative for ambiguous network and provider `5xx` outcomes
+- Updated provider, webhook, failover, and README documentation
 
 ## [0.1.0] - 2026-06-14
 
