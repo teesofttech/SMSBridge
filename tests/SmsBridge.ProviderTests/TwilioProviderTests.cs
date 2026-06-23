@@ -69,6 +69,7 @@ public sealed class TwilioProviderTests
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeTrue();
+        result.MayHaveBeenAccepted.Should().BeTrue();
     }
 
     [Fact]
@@ -87,5 +88,23 @@ public sealed class TwilioProviderTests
         });
 
         result.Success.Should().BeTrue();
+    }
+
+    [Fact]
+    public void RequestMapper_AddsConfiguredStatusCallback()
+    {
+        var options = new TwilioOptions
+        {
+            AccountSid = "ACtest",
+            AuthToken = "token",
+            From = "+15551234567",
+            StatusCallbackUrl = "https://example.com/webhooks/twilio"
+        };
+
+        var fields = TwilioSmsRequestMapper
+            .ToFormFields(new SmsMessage { To = "+447700900001", Body = "Hi" }, options)
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+        fields["StatusCallback"].Should().Be("https://example.com/webhooks/twilio");
     }
 }

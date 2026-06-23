@@ -67,10 +67,11 @@ public sealed class TelnyxProviderTests
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeTrue();
+        result.MayHaveBeenAccepted.Should().BeTrue();
     }
 
     [Fact]
-    public async Task SendAsync_ReturnsTransientFailureWhenQueueIsFull()
+    public async Task SendAsync_ReturnsNonTransientFailureWhenQueuePressureNeedsIntervention()
     {
         var mock = new MockHttpMessageHandler();
         mock.When("https://api.telnyx.com/*")
@@ -81,7 +82,7 @@ public sealed class TelnyxProviderTests
         var result = await provider.SendAsync(new SmsMessage { To = "+1", Body = "Hi" });
 
         result.Success.Should().BeFalse();
-        result.IsTransientFailure.Should().BeTrue();
+        result.IsTransientFailure.Should().BeFalse();
         result.ErrorCode.Should().Be("40318");
     }
 

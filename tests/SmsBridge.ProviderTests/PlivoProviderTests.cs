@@ -67,6 +67,7 @@ public sealed class PlivoProviderTests
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeTrue();
+        result.MayHaveBeenAccepted.Should().BeTrue();
     }
 
     [Fact]
@@ -85,5 +86,24 @@ public sealed class PlivoProviderTests
         });
 
         result.Success.Should().BeTrue();
+    }
+
+    [Fact]
+    public void RequestMapper_AddsConfiguredDeliveryCallback()
+    {
+        var options = new PlivoOptions
+        {
+            AuthId = "MATEST000000000000000",
+            AuthToken = "test-auth-token",
+            From = "SmsBridge",
+            CallbackUrl = "https://example.com/webhooks/plivo"
+        };
+
+        var body = PlivoSmsRequestMapper.ToRequestBody(
+            new SmsMessage { To = "+447700900001", Body = "Hi" },
+            options);
+
+        body["url"].Should().Be("https://example.com/webhooks/plivo");
+        body["method"].Should().Be("POST");
     }
 }

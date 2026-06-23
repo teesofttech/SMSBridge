@@ -50,7 +50,12 @@ internal sealed class TelnyxSmsProvider : ISmsProvider
         catch (HttpRequestException ex)
         {
             _logger.LogWarning(ex, "Telnyx: HTTP request failed for provider '{Provider}'", Name);
-            return SmsSendResult.Failed(Name, null, ex.Message, isTransient: true);
+            return SmsSendResult.Failed(
+                Name,
+                null,
+                ex.Message,
+                isTransient: true,
+                mayHaveBeenAccepted: true);
         }
 
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);

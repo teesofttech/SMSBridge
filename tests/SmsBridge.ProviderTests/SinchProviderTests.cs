@@ -30,7 +30,7 @@ public sealed class SinchProviderTests
     public async Task SendAsync_ReturnsSentResultOnSuccess()
     {
         var mock = new MockHttpMessageHandler();
-        mock.When("https://sms.api.sinch.com/*")
+        mock.When("https://us.sms.api.sinch.com/*")
             .Respond("application/json", """{"id":"batch-123","to":["+447700900001"],"from":"SmsBridge","body":"Hi"}""");
 
         var provider = BuildProvider(mock);
@@ -46,7 +46,7 @@ public sealed class SinchProviderTests
     public async Task SendAsync_ReturnsFailureOn400()
     {
         var mock = new MockHttpMessageHandler();
-        mock.When("https://sms.api.sinch.com/*")
+        mock.When("https://us.sms.api.sinch.com/*")
             .Respond(HttpStatusCode.BadRequest, "application/json", """{"code":"400","text":"Invalid parameter"}""");
 
         var provider = BuildProvider(mock);
@@ -60,7 +60,7 @@ public sealed class SinchProviderTests
     public async Task SendAsync_ReturnsTransientFailureOn503()
     {
         var mock = new MockHttpMessageHandler();
-        mock.When("https://sms.api.sinch.com/*")
+        mock.When("https://us.sms.api.sinch.com/*")
             .Respond(HttpStatusCode.ServiceUnavailable, "application/json", "{}");
 
         var provider = BuildProvider(mock);
@@ -68,13 +68,14 @@ public sealed class SinchProviderTests
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeTrue();
+        result.MayHaveBeenAccepted.Should().BeTrue();
     }
 
     [Fact]
     public async Task SendAsync_UsesFromOnMessage_WhenSupplied()
     {
         var mock = new MockHttpMessageHandler();
-        mock.When("https://sms.api.sinch.com/*")
+        mock.When("https://us.sms.api.sinch.com/*")
             .Respond("application/json", """{"id":"batch-999","to":["+447700900001"],"from":"CustomSender","body":"Hi"}""");
 
         var provider = BuildProvider(mock);
@@ -86,5 +87,24 @@ public sealed class SinchProviderTests
         });
 
         result.Success.Should().BeTrue();
+    }
+
+    [Fact]
+    public void RequestMapper_AddsConfiguredPerRecipientDeliveryReport()
+    {
+        var options = new SinchOptions
+        {
+            ServicePlanId = "plan-123",
+            ApiToken = "test-token",
+            From = "SmsBridge",
+            CallbackUrl = "https://example.com/webhooks/sinch"
+        };
+
+        var body = SinchSmsRequestMapper.ToRequestBody(
+            new SmsMessage { To = "+447700900001", Body = "Hi" },
+            options);
+
+        body["delivery_report"].Should().Be("per_recipient");
+        body["callback_url"].Should().Be("https://example.com/webhooks/sinch");
     }
 }

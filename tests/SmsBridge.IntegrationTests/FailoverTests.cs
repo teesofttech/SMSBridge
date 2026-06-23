@@ -39,11 +39,42 @@ public sealed class FailoverTests
             });
 
     [Fact]
-    public async Task SmsClient_FailsOverToVonage_WhenTwilioReturnsTransientFailure()
+    public async Task SmsClient_DoesNotFailOver_WhenPrimaryMayHaveAcceptedMessage()
     {
         var twilioMock = new MockHttpMessageHandler();
         twilioMock.When("https://api.twilio.com/*")
             .Respond(HttpStatusCode.ServiceUnavailable, "application/json", "{}");
+
+        var vonageMock = new MockHttpMessageHandler();
+        var vonageRequest = vonageMock.When("https://rest.nexmo.com/sms/json")
+            .Respond("application/json", """{"messages":[{"status":"0","message-id":"V999"}]}""");
+
+        var services = BaseServices();
+        services.AddHttpClient(HttpClientNames.Twilio)
+            .ConfigurePrimaryHttpMessageHandler(() => twilioMock);
+        services.AddHttpClient(HttpClientNames.Vonage)
+            .ConfigurePrimaryHttpMessageHandler(() => vonageMock);
+
+        ConfigureBothProviders(services);
+
+        var sp = services.BuildServiceProvider();
+        var client = sp.GetRequiredService<ISmsClient>();
+
+        var result = await client.SendAsync(new SmsMessage { To = "+447700900001", Body = "Test" });
+
+        result.Success.Should().BeFalse();
+        result.Provider.Should().Be("twilio");
+        result.IsTransientFailure.Should().BeTrue();
+        result.MayHaveBeenAccepted.Should().BeTrue();
+        vonageMock.GetMatchCount(vonageRequest).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task SmsClient_FailsOverToVonage_WhenTwilioIsRateLimited()
+    {
+        var twilioMock = new MockHttpMessageHandler();
+        twilioMock.When("https://api.twilio.com/*")
+            .Respond(HttpStatusCode.TooManyRequests, "application/json", "{}");
 
         var vonageMock = new MockHttpMessageHandler();
         vonageMock.When("https://rest.nexmo.com/sms/json")

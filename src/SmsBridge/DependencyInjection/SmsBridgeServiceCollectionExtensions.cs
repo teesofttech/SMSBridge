@@ -51,6 +51,8 @@ public static class SmsBridgeServiceCollectionExtensions
         services.AddSingleton<ISmsWebhookParser, TwilioWebhookParser>();
         services.AddSingleton<ISmsWebhookParser, VonageWebhookParser>();
         services.AddSingleton<ISmsWebhookParser, PlivoWebhookParser>();
+        services.AddSingleton<ISmsWebhookParser, SinchWebhookParser>();
+        services.AddSingleton<ISmsWebhookParser, TelnyxWebhookParser>();
         services.AddSingleton<SmsWebhookParserResolver>();
     }
 }

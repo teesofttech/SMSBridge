@@ -95,7 +95,7 @@ public sealed class TelnyxResponseMapperTests
     }
 
     [Fact]
-    public void FromErrorResponse_MarksQueueFullAsTransient()
+    public void FromErrorResponse_DoesNotAutomaticallyRetryQueuePressure()
     {
         const string json = """
             {
@@ -111,7 +111,7 @@ public sealed class TelnyxResponseMapperTests
         var result = TelnyxSmsResponseMapper.FromErrorResponse("telnyx", 403, json);
 
         result.Success.Should().BeFalse();
-        result.IsTransientFailure.Should().BeTrue();
+        result.IsTransientFailure.Should().BeFalse();
         result.ErrorCode.Should().Be("40318");
         result.ErrorMessage.Should().Be("Internal message queue is full");
     }

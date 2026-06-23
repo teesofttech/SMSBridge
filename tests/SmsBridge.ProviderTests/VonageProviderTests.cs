@@ -100,6 +100,23 @@ public sealed class VonageProviderTests
 
         result.Success.Should().BeFalse();
         result.IsTransientFailure.Should().BeTrue();
+        result.MayHaveBeenAccepted.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SendAsync_SetsUnicodeTypeForNonGsmCharacters()
+    {
+        var handler = new RecordingHandler();
+        var provider = BuildProvider(new HttpClient(handler));
+
+        var result = await provider.SendAsync(new SmsMessage
+        {
+            To = "+447700900001",
+            Body = "Hello 👋"
+        });
+
+        result.Success.Should().BeTrue();
+        handler.Body.Should().Contain("type=unicode");
     }
 
     private sealed class RecordingHandler : HttpMessageHandler

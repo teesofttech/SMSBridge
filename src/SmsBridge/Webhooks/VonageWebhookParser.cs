@@ -13,6 +13,7 @@ public sealed class VonageWebhookParser : ISmsWebhookParser
         payload.TryGetValue("msisdn", out var to);
         payload.TryGetValue("status", out var status);
         payload.TryGetValue("message-timestamp", out var tsStr);
+        payload.TryGetValue("err-code", out var errorCode);
 
         DateTimeOffset.TryParse(tsStr, out var timestamp);
 
@@ -22,6 +23,8 @@ public sealed class VonageWebhookParser : ISmsWebhookParser
             MessageId = messageId,
             To = to,
             Status = MapStatus(status),
+            ErrorCode = string.IsNullOrWhiteSpace(errorCode) ? null : errorCode,
+            IsTransientFailure = IsTransientError(errorCode),
             Timestamp = timestamp == default ? DateTimeOffset.UtcNow : timestamp,
             Raw = new Dictionary<string, string>(payload)
         };
@@ -30,8 +33,14 @@ public sealed class VonageWebhookParser : ISmsWebhookParser
     private static SmsDeliveryStatus MapStatus(string? status) => status?.ToUpperInvariant() switch
     {
         "DELIVERED" => SmsDeliveryStatus.Delivered,
-        "BUFFERED" or "ACCEPTD" => SmsDeliveryStatus.Queued,
+        "BUFFERED" or "ACCEPTED" or "ACCEPTD" => SmsDeliveryStatus.Queued,
         "EXPIRED" or "FAILED" or "REJECTED" => SmsDeliveryStatus.Failed,
         _ => SmsDeliveryStatus.Unknown
+    };
+
+    private static bool IsTransientError(string? errorCode) => errorCode switch
+    {
+        "2" or "7" or "8" => true,
+        _ => false
     };
 }

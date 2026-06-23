@@ -38,6 +38,24 @@ public sealed class TwilioWebhookParserTests
         evt.Status.Should().Be(SmsDeliveryStatus.Failed);
     }
 
+    [Theory]
+    [InlineData("30001")]
+    [InlineData("30003")]
+    public void Parse_MapsTransientErrorMetadata(string errorCode)
+    {
+        var payload = new Dictionary<string, string>
+        {
+            ["MessageSid"] = "SM456",
+            ["MessageStatus"] = "undelivered",
+            ["ErrorCode"] = errorCode
+        };
+
+        var evt = _parser.Parse(payload);
+
+        evt.ErrorCode.Should().Be(errorCode);
+        evt.IsTransientFailure.Should().BeTrue();
+    }
+
     [Fact]
     public void Parse_MapsUnknownStatusToUnknown()
     {

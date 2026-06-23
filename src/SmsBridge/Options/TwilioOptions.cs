@@ -9,4 +9,6 @@ public sealed class TwilioOptions
     public required string AuthToken { get; init; }
 
     public required string From { get; init; }
+
+    public string? StatusCallbackUrl { get; init; }
 }

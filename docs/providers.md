@@ -8,6 +8,7 @@
     o.AccountSid = "ACxxxxxxxx";
     o.AuthToken  = "xxxxxxxx";
     o.From       = "+15551234567";
+    o.StatusCallbackUrl = "https://example.com/webhooks/twilio"; // optional
 })
 ```
 
@@ -34,6 +35,8 @@ Uses the Vonage SMS API v1 directly. No official Vonage SDK dependency.
     o.ServicePlanId = "xxxxxxxx";
     o.ApiToken      = "xxxxxxxx";
     o.From          = "+15551234567";
+    o.BaseUrl       = "https://us.sms.api.sinch.com";
+    o.CallbackUrl   = "https://example.com/webhooks/sinch"; // optional
 })
 ```
 
@@ -47,6 +50,7 @@ Uses the Sinch SMS REST API directly. No official Sinch SDK dependency.
     o.AuthId    = "MAXXXXXXXX";
     o.AuthToken = "xxxxxxxx";
     o.From      = "+15551234567";
+    o.CallbackUrl = "https://example.com/webhooks/plivo"; // optional
 })
 ```
 
@@ -63,6 +67,7 @@ Uses the Plivo SMS REST API directly. No official Plivo SDK dependency.
 ```
 
 Uses the Telnyx messaging REST API directly. No official Telnyx SDK dependency.
+Telnyx delivery webhooks are configured on the Messaging Profile rather than per message.
 
 ## Planned Providers
 

@@ -44,7 +44,12 @@ internal sealed class VonageSmsProvider : ISmsProvider
         catch (HttpRequestException ex)
         {
             _logger.LogWarning(ex, "Vonage: HTTP request failed for provider '{Provider}'", Name);
-            return SmsSendResult.Failed(Name, null, ex.Message, isTransient: true);
+            return SmsSendResult.Failed(
+                Name,
+                null,
+                ex.Message,
+                isTransient: true,
+                mayHaveBeenAccepted: true);
         }
 
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
