@@ -207,6 +207,7 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 
 - .NET 8
 - .NET 9
+- .NET 10
 
 ---
 

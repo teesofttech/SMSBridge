@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- .NET 10 support for the SDK package, samples, tests, CI, and release publishing while preserving .NET 8 and .NET 9 targets.
+
 ## [0.3.0] - 2026-06-23
 
 ### Added
