@@ -16,6 +16,7 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
+            10.0.x
 
       - name: Extract version from tag
         id: version
@@ -31,7 +32,7 @@ jobs:
         run: dotnet test --configuration Release --no-build
 
       - name: Pack
-        run: dotnet pack src/SmsBridge/SmsBridge.csproj --configuration Release --no-build --output ./artifacts -p:Version=${{ steps.version.outputs.value }}
+        run: dotnet build src/SmsBridge/SmsBridge.csproj --configuration Release --no-restore --target:Pack -p:PackageOutputPath=${{ github.workspace }}/artifacts -p:Version=${{ steps.version.outputs.value }}
 
       - name: Publish to NuGet
         run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
