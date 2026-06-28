@@ -82,6 +82,21 @@ Telnyx delivery webhooks are configured on the Messaging Profile rather than per
 Uses the MessageBird SMS API directly with `AccessKey` authentication. SMSBridge
 submits URL-encoded message fields and requests automatic GSM/Unicode data coding.
 
+## Africa's Talking
+
+```csharp
+.UseAfricasTalking("africas-talking", o =>
+{
+    o.Username = "your-username";
+    o.ApiKey   = "your-api-key";
+    o.From     = "MyApp"; // optional
+})
+```
+
+Uses Africa's Talking's legacy bulk SMS endpoint with `apiKey` header
+authentication and URL-encoded message fields. `From` is optional because
+Africa's Talking can default the sender ID for some accounts and countries.
+
 ## Infobip
 
 ```csharp

@@ -183,6 +183,7 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 | Plivo | Supported |
 | Telnyx | Supported |
 | MessageBird | Supported |
+| Africa's Talking | Supported |
 | AWS SNS | Planned |
 | Infobip | Supported |
 | Termii | Planned |

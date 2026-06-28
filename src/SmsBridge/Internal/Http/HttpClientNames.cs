@@ -10,4 +10,5 @@ internal static class HttpClientNames
     public const string Plivo = "SmsBridge.Plivo";
     public const string Telnyx = "SmsBridge.Telnyx";
     public const string Infobip = "SmsBridge.Infobip";
+    public const string AfricasTalking = "SmsBridge.AfricasTalking";
 }
