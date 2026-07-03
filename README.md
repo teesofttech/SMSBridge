@@ -186,7 +186,7 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 | AWS SNS | Planned |
 | Infobip | Supported |
 | SmartSMSSolutions | Supported |
-| Termii | Planned |
+| Termii | Supported |
 | Unifonic | Planned |
 
 ---
@@ -194,7 +194,6 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 ## Roadmap
 
 - AWS SNS provider
-- Termii provider
 - Unifonic provider
 - OpenTelemetry metrics
 - Webhook signature verification
