@@ -185,6 +185,7 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 | MessageBird | Supported |
 | AWS SNS | Planned |
 | Infobip | Supported |
+| SmartSMSSolutions | Supported |
 | Termii | Planned |
 | Unifonic | Planned |
 
