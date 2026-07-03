@@ -96,6 +96,22 @@ submits URL-encoded message fields and requests automatic GSM/Unicode data codin
 Uses Infobip's current SMS API v3 endpoint with `App` API-key authentication.
 The base URL is account-specific and must be an absolute HTTPS URL.
 
+## SmartSMSSolutions
+
+```csharp
+.UseSmartSms("smart-sms", o =>
+{
+    o.Token = "your-token";
+    o.From  = "SmsBridge";
+})
+```
+
+Uses SmartSMSSolutions' API-x SMS endpoint with POST form data. SMSBridge
+submits the documented `token`, `sender`, `to`, `message`, `type`, `routing`,
+and `ref_id` fields. `type` defaults to `0`, `routing` defaults to `3`, and
+`ref_id`, `simserver_token`, `dlr_timeout`, and `schedule` can be supplied
+through message metadata.
+
 ## Planned Providers
 
 - AWS SNS

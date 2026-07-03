@@ -157,6 +157,32 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithSmartSms()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "smart-sms";
+                opts.Providers["smart-sms"] = new SmsProviderOptions
+                {
+                    Type = SmsProviderType.SmartSms
+                };
+            })
+            .UseSmartSms("smart-sms", o =>
+            {
+                o.Token = "test-token";
+                o.From = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void BothTwilioAndVonage_CanBeRegisteredTogether()
     {
         var services = new ServiceCollection();
