@@ -96,6 +96,23 @@ submits URL-encoded message fields and requests automatic GSM/Unicode data codin
 Uses Infobip's current SMS API v3 endpoint with `App` API-key authentication.
 The base URL is account-specific and must be an absolute HTTPS URL.
 
+## Termii
+
+```csharp
+.UseTermii("termii", o =>
+{
+    o.ApiKey  = "your-api-key";
+    o.From    = "MyApp";
+    o.Channel = "generic"; // optional, defaults to generic
+    o.BaseUrl = "https://api.ng.termii.com"; // optional regional/account base URL
+})
+```
+
+Uses Termii's Messaging API with JSON request bodies. SMSBridge submits the
+documented `api_key`, `to`, `from`, `sms`, `type`, and `channel` fields.
+`type` defaults to `plain`; `channel` defaults to `generic` and can be
+overridden per message through metadata.
+
 ## SmartSMSSolutions
 
 ```csharp
@@ -115,5 +132,4 @@ through message metadata.
 ## Planned Providers
 
 - AWS SNS
-- Termii
 - Unifonic

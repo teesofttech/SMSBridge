@@ -6,6 +6,7 @@ using SmsBridge.Providers.Infobip;
 using SmsBridge.Providers.MessageBird;
 using SmsBridge.Providers.Plivo;
 using SmsBridge.Providers.Telnyx;
+using SmsBridge.Providers.Termii;
 using SmsBridge.Providers.Sinch;
 using SmsBridge.Providers.Twilio;
 using SmsBridge.Providers.Vonage;
@@ -17,6 +18,45 @@ namespace SmsBridge.DependencyInjection;
 /// </summary>
 public static class SmsBridgeProviderBuilder
 {
+    /// <summary>Registers the Termii SMS provider.</summary>
+    public static SmsBridgeBuilder UseTermii(
+        this SmsBridgeBuilder builder,
+        string name,
+        Action<TermiiProviderConfig> configure)
+    {
+        var config = new TermiiProviderConfig();
+        configure(config);
+
+        if (string.IsNullOrWhiteSpace(config.ApiKey))
+            throw new SmsBridgeException($"Termii provider '{name}': ApiKey is required.");
+        if (string.IsNullOrWhiteSpace(config.From))
+            throw new SmsBridgeException($"Termii provider '{name}': From is required.");
+        if (string.IsNullOrWhiteSpace(config.Channel))
+            throw new SmsBridgeException($"Termii provider '{name}': Channel is required.");
+        if (!Uri.TryCreate(config.BaseUrl, UriKind.Absolute, out var baseUri) ||
+            baseUri.Scheme != Uri.UriSchemeHttps)
+            throw new SmsBridgeException($"Termii provider '{name}': BaseUrl must be an absolute HTTPS URL.");
+
+        var options = new TermiiOptions
+        {
+            ApiKey = config.ApiKey,
+            From = config.From,
+            Channel = config.Channel,
+            BaseUrl = config.BaseUrl.TrimEnd('/')
+        };
+
+        builder.Services.AddHttpClient(HttpClientNames.Termii);
+
+        builder.Services.AddSingleton<ISmsProvider>(sp =>
+            new TermiiSmsProvider(
+                name,
+                options,
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<TermiiSmsProvider>>()));
+
+        return builder;
+    }
+
     /// <summary>Registers the Infobip SMS provider.</summary>
     public static SmsBridgeBuilder UseInfobip(
         this SmsBridgeBuilder builder,
@@ -265,6 +305,15 @@ public static class SmsBridgeProviderBuilder
 
         return builder;
     }
+}
+
+/// <summary>Mutable configuration object used when calling <c>.UseTermii()</c>.</summary>
+public sealed class TermiiProviderConfig
+{
+    public string? ApiKey { get; set; }
+    public string? From { get; set; }
+    public string Channel { get; set; } = "generic";
+    public string BaseUrl { get; set; } = "https://api.ng.termii.com";
 }
 
 /// <summary>Mutable configuration object used when calling <c>.UseInfobip()</c>.</summary>

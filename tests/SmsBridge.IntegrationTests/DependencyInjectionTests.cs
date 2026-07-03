@@ -183,6 +183,32 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithTermii()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "termii";
+                opts.Providers["termii"] = new SmsProviderOptions
+                {
+                    Type = SmsProviderType.Termii
+                };
+            })
+            .UseTermii("termii", o =>
+            {
+                o.ApiKey = "test-api-key";
+                o.From = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void BothTwilioAndVonage_CanBeRegisteredTogether()
     {
         var services = new ServiceCollection();
