@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmsBridge.Abstractions;
 using SmsBridge.Internal.Http;
 using SmsBridge.Options;
+using SmsBridge.Providers.AwsSns;
 using SmsBridge.Providers.Infobip;
 using SmsBridge.Providers.MessageBird;
 using SmsBridge.Providers.Plivo;
@@ -18,6 +19,42 @@ namespace SmsBridge.DependencyInjection;
 /// </summary>
 public static class SmsBridgeProviderBuilder
 {
+    /// <summary>Registers the AWS SNS SMS provider.</summary>
+    public static SmsBridgeBuilder UseAwsSns(
+        this SmsBridgeBuilder builder,
+        string name,
+        Action<AwsSnsProviderConfig> configure)
+    {
+        var config = new AwsSnsProviderConfig();
+        configure(config);
+
+        if (string.IsNullOrWhiteSpace(config.AccessKeyId))
+            throw new SmsBridgeException($"AWS SNS provider '{name}': AccessKeyId is required.");
+        if (string.IsNullOrWhiteSpace(config.SecretAccessKey))
+            throw new SmsBridgeException($"AWS SNS provider '{name}': SecretAccessKey is required.");
+        if (string.IsNullOrWhiteSpace(config.Region))
+            throw new SmsBridgeException($"AWS SNS provider '{name}': Region is required.");
+
+        var options = new AwsSnsOptions
+        {
+            AccessKeyId = config.AccessKeyId,
+            SecretAccessKey = config.SecretAccessKey,
+            Region = config.Region,
+            SenderId = config.SenderId
+        };
+
+        builder.Services.AddHttpClient(HttpClientNames.AwsSns);
+
+        builder.Services.AddSingleton<ISmsProvider>(sp =>
+            new AwsSnsSmsProvider(
+                name,
+                options,
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<AwsSnsSmsProvider>>()));
+
+        return builder;
+    }
+
     /// <summary>Registers the Termii SMS provider.</summary>
     public static SmsBridgeBuilder UseTermii(
         this SmsBridgeBuilder builder,
@@ -305,6 +342,15 @@ public static class SmsBridgeProviderBuilder
 
         return builder;
     }
+}
+
+/// <summary>Mutable configuration object used when calling <c>.UseAwsSns()</c>.</summary>
+public sealed class AwsSnsProviderConfig
+{
+    public string? AccessKeyId { get; set; }
+    public string? SecretAccessKey { get; set; }
+    public string? Region { get; set; }
+    public string? SenderId { get; set; }
 }
 
 /// <summary>Mutable configuration object used when calling <c>.UseTermii()</c>.</summary>

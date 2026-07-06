@@ -33,6 +33,31 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithAwsSns()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "aws";
+                opts.Providers["aws"] = new SmsProviderOptions { Type = SmsProviderType.AwsSns };
+            })
+            .UseAwsSns("aws", o =>
+            {
+                o.AccessKeyId = "AKIDEXAMPLE";
+                o.SecretAccessKey = "secret";
+                o.Region = "eu-west-2";
+                o.SenderId = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void ISmsClient_CanBeResolvedFromDI_WithTelnyx()
     {
         var services = new ServiceCollection();

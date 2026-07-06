@@ -1,6 +1,6 @@
 namespace SmsBridge.Options;
 
-/// <summary>AWS SNS provider options — planned, not yet implemented.</summary>
+/// <summary>AWS SNS provider options.</summary>
 public sealed class AwsSnsOptions
 {
     public const string SectionKey = "AwsSns";
