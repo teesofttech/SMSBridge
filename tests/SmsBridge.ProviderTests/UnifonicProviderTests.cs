@@ -65,23 +65,21 @@ public sealed class UnifonicProviderTests
             });
 
         result.Success.Should().BeTrue();
-        handler.RequestUri.Should().StartWith("https://el.cloud.unifonic.com/rest/SMS/messages?");
+        handler.RequestUri.Should().Be("https://el.cloud.unifonic.com/rest/SMS/messages");
         handler.Accept.Should().Contain("application/json");
         handler.Authorization.Should().Be(
             new AuthenticationHeaderValue(
                 "Basic",
                 Convert.ToBase64String(Encoding.ASCII.GetBytes("test-app-sid:"))).ToString());
-        handler.ContentType.Should().Be("application/json");
-        handler.Body.Should().Be("{}");
-        handler.RequestUri.Should().Contain("AppSid=test-app-sid");
-        handler.RequestUri.Should().Contain("SenderID=CustomSender");
-        handler.RequestUri.Should().Contain("Body=Hello World%21");
-        handler.RequestUri.Should().Contain("Recipient=966500000000");
-        handler.RequestUri.Should().Contain("responseType=json");
-        handler.RequestUri.Should().Contain("CorrelationID=client-ref-123");
-        handler.RequestUri.Should().Contain("statusCallback=https%3A%2F%2Fexample.com%2Funifonic%2Fstatus");
-        handler.RequestUri.Should().Contain("async=true");
-    }
+        handler.ContentType.Should().Be("application/x-www-form-urlencoded");
+        handler.Body.Should().Contain("AppSid=test-app-sid");
+        handler.Body.Should().Contain("SenderID=CustomSender");
+        handler.Body.Should().Contain("Body=Hello+World%21");
+        handler.Body.Should().Contain("Recipient=966500000000");
+        handler.Body.Should().Contain("responseType=JSON");
+        handler.Body.Should().Contain("CorrelationID=client-ref-123");
+        handler.Body.Should().Contain("statusCallback=https%3A%2F%2Fexample.com%2Funifonic%2Fstatus");
+        handler.Body.Should().Contain("async=true");
 
     [Fact]
     public async Task SendAsync_UsesConfiguredFromWhenMessageFromIsNotSupplied()
