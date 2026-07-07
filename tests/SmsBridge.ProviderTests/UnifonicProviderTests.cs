@@ -94,8 +94,7 @@ public sealed class UnifonicProviderTests
             });
 
         result.Success.Should().BeTrue();
-        handler.RequestUri.Should().Contain("SenderID=SmsBridge");
-    }
+        handler.Body.Should().Contain("SenderID=SmsBridge");
 
     [Fact]
     public async Task SendAsync_ReturnsFailureResultOn400()
