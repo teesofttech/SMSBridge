@@ -10,6 +10,7 @@ using SmsBridge.Providers.Telnyx;
 using SmsBridge.Providers.Termii;
 using SmsBridge.Providers.Sinch;
 using SmsBridge.Providers.Twilio;
+using SmsBridge.Providers.Unifonic;
 using SmsBridge.Providers.Vonage;
 
 namespace SmsBridge.DependencyInjection;
@@ -90,6 +91,38 @@ public static class SmsBridgeProviderBuilder
                 options,
                 sp.GetRequiredService<IHttpClientFactory>(),
                 sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<TermiiSmsProvider>>()));
+
+        return builder;
+    }
+
+    /// <summary>Registers the Unifonic SMS provider.</summary>
+    public static SmsBridgeBuilder UseUnifonic(
+        this SmsBridgeBuilder builder,
+        string name,
+        Action<UnifonicProviderConfig> configure)
+    {
+        var config = new UnifonicProviderConfig();
+        configure(config);
+
+        if (string.IsNullOrWhiteSpace(config.AppSid))
+            throw new SmsBridgeException($"Unifonic provider '{name}': AppSid is required.");
+        if (string.IsNullOrWhiteSpace(config.From))
+            throw new SmsBridgeException($"Unifonic provider '{name}': From is required.");
+
+        var options = new UnifonicOptions
+        {
+            AppSid = config.AppSid,
+            From = config.From
+        };
+
+        builder.Services.AddHttpClient(HttpClientNames.Unifonic);
+
+        builder.Services.AddSingleton<ISmsProvider>(sp =>
+            new UnifonicSmsProvider(
+                name,
+                options,
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<UnifonicSmsProvider>>()));
 
         return builder;
     }
@@ -360,6 +393,13 @@ public sealed class TermiiProviderConfig
     public string? From { get; set; }
     public string Channel { get; set; } = "generic";
     public string BaseUrl { get; set; } = "https://api.ng.termii.com";
+}
+
+/// <summary>Mutable configuration object used when calling <c>.UseUnifonic()</c>.</summary>
+public sealed class UnifonicProviderConfig
+{
+    public string? AppSid { get; set; }
+    public string? From { get; set; }
 }
 
 /// <summary>Mutable configuration object used when calling <c>.UseInfobip()</c>.</summary>

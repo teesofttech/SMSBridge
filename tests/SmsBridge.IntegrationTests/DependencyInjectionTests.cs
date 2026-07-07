@@ -58,6 +58,29 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithUnifonic()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "unifonic";
+                opts.Providers["unifonic"] = new SmsProviderOptions { Type = SmsProviderType.Unifonic };
+            })
+            .UseUnifonic("unifonic", o =>
+            {
+                o.AppSid = "test-app-sid";
+                o.From = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void ISmsClient_CanBeResolvedFromDI_WithTelnyx()
     {
         var services = new ServiceCollection();
