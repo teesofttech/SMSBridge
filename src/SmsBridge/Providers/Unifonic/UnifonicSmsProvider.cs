@@ -43,7 +43,7 @@ internal sealed class UnifonicSmsProvider : ISmsProvider
         var url = $"{SendSmsUrl}?{BuildQueryString(parameters)}";
         using var request = new HttpRequestMessage(HttpMethod.Post, url)
         {
-            Content = new StringContent("{}", Encoding.UTF8, "application/json")
+            Content = new StringContent(string.Empty, Encoding.UTF8, "application/json")
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Headers.Authorization = new AuthenticationHeaderValue(

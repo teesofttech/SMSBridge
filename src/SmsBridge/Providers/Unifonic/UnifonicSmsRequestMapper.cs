@@ -15,7 +15,7 @@ internal static class UnifonicSmsRequestMapper
             ["SenderID"] = message.From ?? options.From,
             ["Body"] = message.Body,
             ["Recipient"] = ToUnifonicRecipient(message.To),
-            ["responseType"] = "JSON"
+            ["responseType"] = "json"
         };
 
         AddOptionalMetadata(parameters, message, "CorrelationID", "CorrelationID", "correlationId");

@@ -72,12 +72,12 @@ public sealed class UnifonicProviderTests
                 "Basic",
                 Convert.ToBase64String(Encoding.ASCII.GetBytes("test-app-sid:"))).ToString());
         handler.ContentType.Should().Be("application/json");
-        handler.Body.Should().Be("{}");
+        handler.Body.Should().BeEmpty();
         handler.RequestUri.Should().Contain("AppSid=test-app-sid");
         handler.RequestUri.Should().Contain("SenderID=CustomSender");
         handler.RequestUri.Should().Contain("Body=Hello World%21");
         handler.RequestUri.Should().Contain("Recipient=966500000000");
-        handler.RequestUri.Should().Contain("responseType=JSON");
+        handler.RequestUri.Should().Contain("responseType=json");
         handler.RequestUri.Should().Contain("CorrelationID=client-ref-123");
         handler.RequestUri.Should().Contain("statusCallback=https%3A%2F%2Fexample.com%2Funifonic%2Fstatus");
         handler.RequestUri.Should().Contain("async=true");
