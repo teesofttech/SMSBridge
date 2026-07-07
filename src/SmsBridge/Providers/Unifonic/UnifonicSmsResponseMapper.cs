@@ -42,7 +42,7 @@ internal static class UnifonicSmsResponseMapper
 
             return SmsSendResult.Failed(
                 providerName,
-                errorCode ?? (success == false ? "Success:false" : status),
+                errorCode ?? (success == false ? "success:false" : status),
                 errorMessage ?? status ?? "Unexpected response format",
                 isTransient: IsTransientStatus(status) || IsTransientErrorCode(errorCode),
                 mayHaveBeenAccepted: IsTransientStatus(status) || IsTransientErrorCode(errorCode));
