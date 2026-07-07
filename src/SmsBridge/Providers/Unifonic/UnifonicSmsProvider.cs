@@ -40,10 +40,9 @@ internal sealed class UnifonicSmsProvider : ISmsProvider
             Name);
 
         var parameters = UnifonicSmsRequestMapper.ToQueryParameters(message, _options);
-        var url = $"{SendSmsUrl}?{BuildQueryString(parameters)}";
-        using var request = new HttpRequestMessage(HttpMethod.Post, url)
+        using var request = new HttpRequestMessage(HttpMethod.Post, SendSmsUrl)
         {
-            Content = new StringContent("{}", Encoding.UTF8, "application/json")
+            Content = new FormUrlEncodedContent(parameters)
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Headers.Authorization = new AuthenticationHeaderValue(
