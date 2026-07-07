@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using SmsBridge.Abstractions;
 using SmsBridge.Internal.Http;
@@ -38,12 +39,16 @@ internal sealed class UnifonicSmsProvider : ISmsProvider
             message.To,
             Name);
 
-        var fields = UnifonicSmsRequestMapper.ToFormFields(message, _options);
-        using var request = new HttpRequestMessage(HttpMethod.Post, SendSmsUrl)
+        var parameters = UnifonicSmsRequestMapper.ToQueryParameters(message, _options);
+        var url = $"{SendSmsUrl}?{BuildQueryString(parameters)}";
+        using var request = new HttpRequestMessage(HttpMethod.Post, url)
         {
-            Content = new FormUrlEncodedContent(fields)
+            Content = new StringContent("{}", Encoding.UTF8, "application/json")
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        request.Headers.Authorization = new AuthenticationHeaderValue(
+            "Basic",
+            Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_options.AppSid}:")));
 
         var client = _httpClientFactory.CreateClient(HttpClientNames.Unifonic);
 
@@ -100,5 +105,13 @@ internal sealed class UnifonicSmsProvider : ISmsProvider
             Name,
             errorResult.ErrorMessage);
         return errorResult;
+    }
+
+    private static string BuildQueryString(IEnumerable<KeyValuePair<string, string>> parameters)
+    {
+        return string.Join(
+            "&",
+            parameters.Select(parameter =>
+                $"{Uri.EscapeDataString(parameter.Key)}={Uri.EscapeDataString(parameter.Value)}"));
     }
 }

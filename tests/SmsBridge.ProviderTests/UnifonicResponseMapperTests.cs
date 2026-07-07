@@ -10,9 +10,13 @@ public sealed class UnifonicResponseMapperTests
     {
         const string json = """
             {
-                "Success": true,
-                "MessageID": "msg-123",
-                "Status": "Sent"
+                "success": "true",
+                "message": "",
+                "errorCode": "ER-00",
+                "data": {
+                    "MessageID": 3200017889310,
+                    "Status": "Queued"
+                }
             }
             """;
 
@@ -20,8 +24,8 @@ public sealed class UnifonicResponseMapperTests
 
         result.Success.Should().BeTrue();
         result.Provider.Should().Be("unifonic");
-        result.ProviderMessageId.Should().Be("msg-123");
-        result.Status.Should().Be(SmsDeliveryStatus.Sent);
+        result.ProviderMessageId.Should().Be("3200017889310");
+        result.Status.Should().Be(SmsDeliveryStatus.Queued);
     }
 
     [Fact]
@@ -30,15 +34,15 @@ public sealed class UnifonicResponseMapperTests
         const string json = """
             {
                 "Success": false,
-                "ErrorCode": "InvalidRecipient",
-                "Message": "Invalid recipient"
+                "errorCode": "ER-482",
+                "message": "Invalid recipient"
             }
             """;
 
         var result = UnifonicSmsResponseMapper.FromResponse("unifonic", json);
 
         result.Success.Should().BeFalse();
-        result.ErrorCode.Should().Be("InvalidRecipient");
+        result.ErrorCode.Should().Be("ER-482");
         result.ErrorMessage.Should().Be("Invalid recipient");
         result.IsTransientFailure.Should().BeFalse();
     }

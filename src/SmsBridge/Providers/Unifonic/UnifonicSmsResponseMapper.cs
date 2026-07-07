@@ -13,10 +13,21 @@ internal static class UnifonicSmsResponseMapper
             var root = document.RootElement;
 
             var success = ReadBoolean(root, "Success") ?? ReadBoolean(root, "success");
-            var messageId = ReadString(root, "MessageID")
+            var data = root.TryGetProperty("data", out var dataElement) &&
+                dataElement.ValueKind == JsonValueKind.Object
+                    ? dataElement
+                    : default;
+            var hasData = data.ValueKind == JsonValueKind.Object;
+            var messageId = hasData
+                ? ReadString(data, "MessageID") ?? ReadString(data, "messageId") ?? ReadString(data, "MessageId")
+                : null;
+            messageId ??= ReadString(root, "MessageID")
                 ?? ReadString(root, "messageId")
                 ?? ReadString(root, "MessageId");
-            var status = ReadString(root, "Status") ?? ReadString(root, "status");
+            var status = hasData
+                ? ReadString(data, "Status") ?? ReadString(data, "status")
+                : null;
+            status ??= ReadString(root, "Status") ?? ReadString(root, "status");
             var errorCode = ReadString(root, "ErrorCode")
                 ?? ReadString(root, "errorCode")
                 ?? ReadString(root, "Code")
@@ -26,7 +37,7 @@ internal static class UnifonicSmsResponseMapper
                 ?? ReadString(root, "Error")
                 ?? ReadString(root, "error");
 
-            if (success == true || IsAcceptedStatus(status))
+            if (success == true || IsSuccessCode(errorCode) || IsAcceptedStatus(status))
                 return SmsSendResult.Succeeded(providerName, messageId, MapStatus(status));
 
             return SmsSendResult.Failed(
@@ -89,6 +100,9 @@ internal static class UnifonicSmsResponseMapper
         status?.Equals("Sent", StringComparison.OrdinalIgnoreCase) == true ||
         status?.Equals("Queued", StringComparison.OrdinalIgnoreCase) == true ||
         status?.Equals("Accepted", StringComparison.OrdinalIgnoreCase) == true;
+
+    private static bool IsSuccessCode(string? errorCode) =>
+        errorCode?.Equals("ER-00", StringComparison.OrdinalIgnoreCase) == true;
 
     private static bool IsTransientStatus(string? status) =>
         status?.Equals("Pending", StringComparison.OrdinalIgnoreCase) == true ||
