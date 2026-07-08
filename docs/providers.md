@@ -129,7 +129,19 @@ and `ref_id` fields. `type` defaults to `0`, `routing` defaults to `3`, and
 `ref_id`, `simserver_token`, `dlr_timeout`, and `schedule` can be supplied
 through message metadata.
 
-## Planned Providers
+## Africa's Talking
 
-- AWS SNS
-- Unifonic
+```csharp
+.UseAfricasTalking("africas-talking", o =>
+{
+    o.Username = "your-username";
+    o.ApiKey = "your-api-key";
+    o.From = "SmsBridge"; // optional
+});
+```
+
+Uses Africa's Talking's legacy bulk SMS endpoint with POST form data.
+SMSBridge submits the documented `username`, `to`, `message`, and optional
+`from` fields, authenticates with the `apiKey` request header, and supports
+`bulkSMSMode`, `enqueue`, `keyword`, `linkId`, and `retryDurationInHours`
+through message metadata.

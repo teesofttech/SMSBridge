@@ -183,18 +183,17 @@ call `Parse(...)` or `ParseJson(...)` as appropriate.
 | Plivo | Supported |
 | Telnyx | Supported |
 | MessageBird | Supported |
-| AWS SNS | Planned |
+| AWS SNS | Supported |
 | Infobip | Supported |
 | SmartSMSSolutions | Supported |
 | Termii | Supported |
-| Unifonic | Planned |
+| Unifonic | Supported |
+| Africa's Talking | Supported |
 
 ---
 
 ## Roadmap
 
-- AWS SNS provider
-- Unifonic provider
 - OpenTelemetry metrics
 - Webhook signature verification
 - Database outbox pattern

@@ -81,6 +81,30 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ISmsClient_CanBeResolvedFromDI_WithAfricasTalking()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts =>
+            {
+                opts.DefaultProvider = "africas-talking";
+                opts.Providers["africas-talking"] = new SmsProviderOptions { Type = SmsProviderType.AfricasTalking };
+            })
+            .UseAfricasTalking("africas-talking", o =>
+            {
+                o.Username = "test-username";
+                o.ApiKey = "test-api-key";
+                o.From = "SmsBridge";
+            });
+
+        var provider = services.BuildServiceProvider();
+
+        var client = provider.GetService<ISmsClient>();
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
     public void ISmsClient_CanBeResolvedFromDI_WithTelnyx()
     {
         var services = new ServiceCollection();
