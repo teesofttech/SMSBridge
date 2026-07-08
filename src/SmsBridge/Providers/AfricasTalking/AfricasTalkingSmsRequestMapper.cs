@@ -20,7 +20,7 @@ internal static class AfricasTalkingSmsRequestMapper
         if (!string.IsNullOrWhiteSpace(from))
             body["from"] = from;
 
-        AddOptionalMetadata(body, message, "bulkSMSMode", "bulkSMSMode", "bulk_sms_mode");
+        AddOptionalMetadata(body, message, "bulkSMSMode", "bulk_sms_mode", "bulkSMSMode");
         AddOptionalMetadata(body, message, "enqueue", "enqueue");
         AddOptionalMetadata(body, message, "keyword", "keyword");
         AddOptionalMetadata(body, message, "linkId", "linkId", "link_id");
