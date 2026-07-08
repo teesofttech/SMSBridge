@@ -102,7 +102,7 @@ internal static class AfricasTalkingSmsResponseMapper
         _ => SmsDeliveryStatus.Unknown
     };
 
-    private static bool IsTransientStatusCode(int? statusCode) => statusCode is 500 or 501 or 502;
+    private static bool IsTransientStatusCode(int? statusCode) => statusCode is >= 500 and < 600;
 
     private static int? ReadInt32(JsonElement element, string propertyName)
     {
