@@ -9,6 +9,7 @@
     <Version>0.0.0</Version>
     <Description>A provider-agnostic .NET SDK for sending SMS through multiple providers using one clean API. Install one SDK. Send SMS through multiple providers. Switch anytime.</Description>
     <PackageTags>sms;twilio;vonage;messagebird;aws-sns;messaging;notifications</PackageTags>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <!-- CS1591: missing XML comment. GenerateDocumentationFile is enabled for IntelliSense,
@@ -28,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\assets\icon.png" Pack="true" PackagePath="\" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
