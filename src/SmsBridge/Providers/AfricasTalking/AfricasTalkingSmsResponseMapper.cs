@@ -25,7 +25,9 @@ internal static class AfricasTalkingSmsResponseMapper
                 return SmsSendResult.Succeeded(providerName, messageId, deliveryStatus);
 
             var errorCode = statusCode?.ToString(CultureInfo.InvariantCulture);
-            var errorMessage = !string.IsNullOrWhiteSpace(status) ? status : $"Africa's Talking statusCode: {errorCode ?? \"unknown\"}";
+            var errorMessage = !string.IsNullOrWhiteSpace(status)
+                ? status
+                : $"Africa's Talking statusCode: {errorCode ?? "unknown"}";
             return SmsSendResult.Failed(
                 providerName,
                 errorCode,
