@@ -1,0 +1,6 @@
+title: SMSBridge
+url: https://teesofttech.github.io
+baseurl: /SMSBridge
+description: Provider-agnostic .NET SDK documentation for sending SMS through multiple providers.
+theme: jekyll-theme-cayman
+show_downloads: false

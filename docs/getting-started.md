@@ -1,3 +1,8 @@
+---
+title: Getting Started
+layout: default
+---
+
 # Getting Started
 
 ## Install
