@@ -1,5 +1,6 @@
 ---
 title: SMSBridge Documentation
+layout: default
 ---
 
 # SMSBridge Documentation
