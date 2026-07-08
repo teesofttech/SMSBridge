@@ -1,3 +1,8 @@
+---
+title: Switching Providers
+layout: default
+---
+
 # Switching Providers
 
 Register both providers:

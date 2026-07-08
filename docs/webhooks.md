@@ -1,3 +1,8 @@
+---
+title: Webhooks
+layout: default
+---
+
 # Webhooks
 
 SMSBridge can parse incoming provider webhook payloads into a normalised `SmsWebhookEvent`.

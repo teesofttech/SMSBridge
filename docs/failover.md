@@ -1,3 +1,8 @@
+---
+title: Failover
+layout: default
+---
+
 # Failover
 
 Enable failover so that transient provider failures are retried automatically via a backup provider.
