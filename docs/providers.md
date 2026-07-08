@@ -132,7 +132,7 @@ through message metadata.
 ## Africa's Talking
 
 ```csharp
-builder.UseAfricasTalking("africas-talking", o =>
+.UseAfricasTalking("africas-talking", o =>
 {
     o.Username = "your-username";
     o.ApiKey = "your-api-key";
