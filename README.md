@@ -182,7 +182,9 @@ Callback URLs can be configured for providers that support per-message delivery 
 Twilio, Vonage, and Plivo callbacks use flat key/value payloads. Sinch and Telnyx callbacks
 use JSON payloads. Resolve the provider parser with `SmsWebhookParserResolver`, then
 call `Parse(...)` or `ParseJson(...)` as appropriate. For Vonage, set the SMS API
-webhook format to `GET` or `POST`; `POST-JSON` is not supported.
+webhook format to `GET` or `POST`; `POST-JSON` is not supported by SMSBridge's built-in
+Vonage parser. For `GET` callbacks, convert `request.Query` to a dictionary and call
+`Parse(...)`. See [Webhooks](https://teesofttech.github.io/SMSBridge/webhooks.html).
 
 ---
 
