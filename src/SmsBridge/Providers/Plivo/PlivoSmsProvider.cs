@@ -30,7 +30,7 @@ internal sealed class PlivoSmsProvider : ISmsProvider
 
     public async Task<SmsSendResult> SendAsync(SmsMessage message, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Plivo: sending SMS to {To} via provider '{Provider}'", message.To, Name);
+        _logger.LogDebug("Plivo: sending SMS via provider '{Provider}'", Name);
 
         var url = $"https://api.plivo.com/v1/Account/{_options.AuthId}/Message/";
         var body = PlivoSmsRequestMapper.ToRequestBody(message, _options);

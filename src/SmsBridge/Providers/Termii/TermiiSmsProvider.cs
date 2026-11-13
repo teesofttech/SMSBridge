@@ -33,8 +33,7 @@ internal sealed class TermiiSmsProvider : ISmsProvider
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "Termii: sending SMS to {To} via provider '{Provider}'",
-            message.To,
+            "Termii: sending SMS via provider '{Provider}'",
             Name);
 
         var url = $"{_options.BaseUrl}/api/sms/send";

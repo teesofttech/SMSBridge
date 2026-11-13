@@ -34,8 +34,7 @@ internal sealed class MessageBirdSmsProvider : ISmsProvider
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "MessageBird: sending SMS to {To} via provider '{Provider}'",
-            message.To,
+            "MessageBird: sending SMS via provider '{Provider}'",
             Name);
 
         var fields = MessageBirdSmsRequestMapper.ToFormFields(message, _options.From);
@@ -67,8 +66,8 @@ internal sealed class MessageBirdSmsProvider : ISmsProvider
                 mayHaveBeenAccepted: true);
         }
 
-using var responseLifetime = response;
-var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        using var responseLifetime = response;
+        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (response.IsSuccessStatusCode)
         {

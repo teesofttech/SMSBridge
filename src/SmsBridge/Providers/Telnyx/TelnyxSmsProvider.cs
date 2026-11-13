@@ -29,7 +29,7 @@ internal sealed class TelnyxSmsProvider : ISmsProvider
 
     public async Task<SmsSendResult> SendAsync(SmsMessage message, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Telnyx: sending SMS to {To} via provider '{Provider}'", message.To, Name);
+        _logger.LogDebug("Telnyx: sending SMS via provider '{Provider}'", Name);
 
         const string url = "https://api.telnyx.com/v2/messages";
         var body = TelnyxSmsRequestMapper.ToRequestBody(message, _options.From);

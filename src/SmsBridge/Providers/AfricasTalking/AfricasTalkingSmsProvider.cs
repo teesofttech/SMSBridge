@@ -34,8 +34,7 @@ internal sealed class AfricasTalkingSmsProvider : ISmsProvider
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "Africa's Talking: sending SMS to {To} via provider '{Provider}'",
-            message.To,
+            "Africa's Talking: sending SMS via provider '{Provider}'",
             Name);
 
         var body = AfricasTalkingSmsRequestMapper.ToRequestBody(message, _options);

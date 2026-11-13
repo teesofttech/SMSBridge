@@ -29,7 +29,7 @@ internal sealed class TwilioSmsProvider : ISmsProvider
 
     public async Task<SmsSendResult> SendAsync(SmsMessage message, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Twilio: sending SMS to {To} via provider '{Provider}'", message.To, Name);
+        _logger.LogDebug("Twilio: sending SMS via provider '{Provider}'", Name);
 
         var url = $"https://api.twilio.com/2010-04-01/Accounts/{_options.AccountSid}/Messages.json";
         var fields = TwilioSmsRequestMapper.ToFormFields(message, _options);

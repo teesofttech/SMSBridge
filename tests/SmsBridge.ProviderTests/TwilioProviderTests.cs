@@ -1,11 +1,12 @@
 using System.Net;
-using RichardSzalay.MockHttp;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using RichardSzalay.MockHttp;
 using SmsBridge.Abstractions;
 using SmsBridge.Internal.Http;
 using SmsBridge.Options;
 using SmsBridge.Providers.Twilio;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace SmsBridge.ProviderTests;
 
@@ -18,12 +19,18 @@ public sealed class TwilioProviderTests
         From = "+15551234567"
     };
 
-    private static TwilioSmsProvider BuildProvider(MockHttpMessageHandler mock)
+    private static TwilioSmsProvider BuildProvider(
+        MockHttpMessageHandler mock,
+        ILogger<TwilioSmsProvider>? logger = null)
     {
         var httpClient = mock.ToHttpClient();
         var factory = Substitute.For<IHttpClientFactory>();
         factory.CreateClient(HttpClientNames.Twilio).Returns(httpClient);
-        return new TwilioSmsProvider("twilio", Options, factory, NullLogger<TwilioSmsProvider>.Instance);
+        return new TwilioSmsProvider(
+            "twilio",
+            Options,
+            factory,
+            logger ?? NullLogger<TwilioSmsProvider>.Instance);
     }
 
     [Fact]
@@ -39,6 +46,28 @@ public sealed class TwilioProviderTests
         result.Success.Should().BeTrue();
         result.Provider.Should().Be("twilio");
         result.ProviderMessageId.Should().Be("SM123");
+    }
+
+    [Fact]
+    public async Task SendAsync_LogsOperationalIdentifiersWithoutRecipient()
+    {
+        const string recipient = "+447700900001";
+        var mock = new MockHttpMessageHandler();
+        mock.When("https://api.twilio.com/*")
+            .Respond("application/json", """{"sid":"SM123","status":"queued"}""");
+        var logger = Substitute.For<ILogger<TwilioSmsProvider>>();
+
+        var provider = BuildProvider(mock, logger);
+        await provider.SendAsync(new SmsMessage { To = recipient, Body = "Hi" });
+
+        var loggedValues = logger.ReceivedCalls()
+            .SelectMany(call => call.GetArguments())
+            .Select(argument => argument?.ToString() ?? string.Empty)
+            .ToArray();
+
+        loggedValues.Should().NotContain(value => value.Contains(recipient, StringComparison.Ordinal));
+        loggedValues.Should().Contain(value => value.Contains("twilio", StringComparison.Ordinal));
+        loggedValues.Should().Contain(value => value.Contains("SM123", StringComparison.Ordinal));
     }
 
     [Fact]

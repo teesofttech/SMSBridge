@@ -33,8 +33,7 @@ internal sealed class InfobipSmsProvider : ISmsProvider
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "Infobip: sending SMS to {To} via provider '{Provider}'",
-            message.To,
+            "Infobip: sending SMS via provider '{Provider}'",
             Name);
 
         var url = $"{_options.BaseUrl}/sms/3/messages";
