@@ -1,5 +1,6 @@
 using System.Xml.Linq;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.AwsSns;
 
@@ -15,23 +16,13 @@ internal static class AwsSnsSmsResponseMapper
                 ?.Value;
 
             if (string.IsNullOrWhiteSpace(messageId))
-            {
-                return SmsSendResult.Failed(
-                    providerName,
-                    null,
-                    "AWS SNS response did not include a MessageId.",
-                    isTransient: false);
-            }
+                return ProviderResponseFailures.InvalidSuccessResponse(providerName, "AWS SNS");
 
             return SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
         }
         catch (Exception ex) when (ex is InvalidOperationException or System.Xml.XmlException)
         {
-            return SmsSendResult.Failed(
-                providerName,
-                null,
-                "Unable to parse AWS SNS response.",
-                isTransient: false);
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "AWS SNS");
         }
     }
 

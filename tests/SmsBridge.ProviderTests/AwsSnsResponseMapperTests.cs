@@ -61,7 +61,8 @@ public sealed class AwsSnsResponseMapperTests
         var result = AwsSnsSmsResponseMapper.FromResponse("aws", xml);
 
         result.Success.Should().BeFalse();
-        result.ErrorMessage.Should().Be("AWS SNS response did not include a MessageId.");
+        result.ErrorMessage.Should().Contain("AWS SNS");
+        result.MayHaveBeenAccepted.Should().BeTrue();
     }
 
     [Theory]

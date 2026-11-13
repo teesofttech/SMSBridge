@@ -1,11 +1,24 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.Termii;
 
 internal static class TermiiSmsResponseMapper
 {
     public static SmsSendResult FromResponse(string providerName, string json)
+    {
+        try
+        {
+            return ParseResponse(providerName, json);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Termii");
+        }
+    }
+
+    private static SmsSendResult ParseResponse(string providerName, string json)
     {
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
@@ -20,8 +33,13 @@ internal static class TermiiSmsResponseMapper
         if (string.Equals(code, "ok", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(message, "Successfully Sent", StringComparison.OrdinalIgnoreCase))
         {
-            return SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
+            return string.IsNullOrWhiteSpace(messageId)
+                ? ProviderResponseFailures.InvalidSuccessResponse(providerName, "Termii")
+                : SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
         }
+
+        if (string.IsNullOrWhiteSpace(code) && string.IsNullOrWhiteSpace(message))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Termii");
 
         return SmsSendResult.Failed(
             providerName,

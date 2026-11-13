@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.Sinch;
 
@@ -7,10 +8,24 @@ internal static class SinchSmsResponseMapper
 {
     public static SmsSendResult FromResponse(string providerName, string json)
     {
+        try
+        {
+            return ParseResponse(providerName, json);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Sinch");
+        }
+    }
+
+    private static SmsSendResult ParseResponse(string providerName, string json)
+    {
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
         var id = root.TryGetProperty("id", out var idEl) ? idEl.GetString() : null;
+        if (string.IsNullOrWhiteSpace(id))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Sinch");
 
         // A successful POST creates a batch. Delivery outcomes are reported separately.
         return SmsSendResult.Succeeded(providerName, id, SmsDeliveryStatus.Queued);

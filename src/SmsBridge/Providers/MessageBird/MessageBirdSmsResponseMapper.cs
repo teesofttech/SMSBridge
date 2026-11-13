@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.MessageBird;
 
@@ -7,14 +8,32 @@ internal static class MessageBirdSmsResponseMapper
 {
     public static SmsSendResult FromResponse(string providerName, string json)
     {
+        try
+        {
+            return ParseResponse(providerName, json);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "MessageBird");
+        }
+    }
+
+    private static SmsSendResult ParseResponse(string providerName, string json)
+    {
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
 
         var messageId = ReadString(root, "id");
+        if (string.IsNullOrWhiteSpace(messageId))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "MessageBird");
+
         if (!TryGetFirstRecipient(root, out var recipient))
             return SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
 
         var status = ReadString(recipient, "status");
+        if (string.IsNullOrWhiteSpace(status))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "MessageBird");
+
         var deliveryStatus = MapStatus(status);
 
         if (deliveryStatus is SmsDeliveryStatus.Failed or SmsDeliveryStatus.Undelivered)
@@ -86,15 +105,15 @@ internal static class MessageBirdSmsResponseMapper
         return true;
     }
 
-private static SmsDeliveryStatus MapStatus(string? status) => status?.ToLowerInvariant() switch
-{
-    "scheduled" or "buffered" => SmsDeliveryStatus.Queued,
-    "sent" => SmsDeliveryStatus.Sent,
-    "delivered" => SmsDeliveryStatus.Delivered,
-    "expired" => SmsDeliveryStatus.Undelivered,
-    "delivery_failed" => SmsDeliveryStatus.Failed,
-    _ => SmsDeliveryStatus.Unknown
-};
+    private static SmsDeliveryStatus MapStatus(string? status) => status?.ToLowerInvariant() switch
+    {
+        "scheduled" or "buffered" => SmsDeliveryStatus.Queued,
+        "sent" => SmsDeliveryStatus.Sent,
+        "delivered" => SmsDeliveryStatus.Delivered,
+        "expired" => SmsDeliveryStatus.Undelivered,
+        "delivery_failed" => SmsDeliveryStatus.Failed,
+        _ => SmsDeliveryStatus.Unknown
+    };
 
     private static string? ReadString(JsonElement element, string propertyName)
     {

@@ -19,14 +19,15 @@ public sealed class PlivoResponseMapperTests
     }
 
     [Fact]
-    public void FromResponse_HandlesEmptyUuidArray()
+    public void FromResponse_ReturnsSafeFailureForEmptyUuidArray()
     {
         const string json = """{"message_uuid":[],"message":"message(s) queued"}""";
 
         var result = PlivoSmsResponseMapper.FromResponse("plivo", json);
 
-        result.Success.Should().BeTrue();
+        result.Success.Should().BeFalse();
         result.ProviderMessageId.Should().BeNull();
+        result.MayHaveBeenAccepted.Should().BeTrue();
     }
 
     [Fact]

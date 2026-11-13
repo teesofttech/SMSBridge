@@ -95,7 +95,8 @@ public sealed class AfricasTalkingResponseMapperTests
         var result = AfricasTalkingSmsResponseMapper.FromResponse("africas-talking", "{");
 
         result.Success.Should().BeFalse();
-        result.ErrorMessage.Should().Be("Unable to parse Africa's Talking response.");
+        result.ErrorMessage.Should().Contain("Africa's Talking");
+        result.MayHaveBeenAccepted.Should().BeTrue();
     }
 
     [Fact]

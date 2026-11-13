@@ -1,11 +1,24 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.Infobip;
 
 internal static class InfobipSmsResponseMapper
 {
     public static SmsSendResult FromResponse(string providerName, string json)
+    {
+        try
+        {
+            return ParseResponse(providerName, json);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Infobip");
+        }
+    }
+
+    private static SmsSendResult ParseResponse(string providerName, string json)
     {
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
@@ -14,19 +27,24 @@ internal static class InfobipSmsResponseMapper
             messages.ValueKind != JsonValueKind.Array ||
             messages.GetArrayLength() == 0)
         {
-            return SmsSendResult.Failed(
-                providerName,
-                null,
-                "Infobip returned an empty messages array.");
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Infobip");
         }
 
         var message = messages[0];
         var messageId = ReadString(message, "messageId");
+        if (string.IsNullOrWhiteSpace(messageId))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Infobip");
 
-        if (!message.TryGetProperty("status", out var status))
-            return SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
+        if (!message.TryGetProperty("status", out var status) ||
+            status.ValueKind != JsonValueKind.Object)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Infobip");
+        }
 
         var groupName = ReadString(status, "groupName");
+        if (string.IsNullOrWhiteSpace(groupName))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Infobip");
+
         var statusId = ReadString(status, "id");
         var statusName = ReadString(status, "name");
         var description = ReadString(status, "description");

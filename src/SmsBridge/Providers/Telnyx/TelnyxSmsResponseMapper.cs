@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.Telnyx;
 
@@ -7,22 +8,40 @@ internal static class TelnyxSmsResponseMapper
 {
     public static SmsSendResult FromResponse(string providerName, string json)
     {
+        try
+        {
+            return ParseResponse(providerName, json);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Telnyx");
+        }
+    }
+
+    private static SmsSendResult ParseResponse(string providerName, string json)
+    {
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        if (!root.TryGetProperty("data", out var data))
-            return SmsSendResult.Failed(providerName, null, "Unexpected response format", isTransient: false);
+        if (!root.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object)
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Telnyx");
 
         var id = data.TryGetProperty("id", out var idEl) ? idEl.GetString() : null;
+        if (string.IsNullOrWhiteSpace(id))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Telnyx");
 
-        string? status = null;
-        if (data.TryGetProperty("to", out var toEl) &&
-            toEl.ValueKind == JsonValueKind.Array &&
-            toEl.GetArrayLength() > 0)
+        if (!data.TryGetProperty("to", out var toEl) ||
+            toEl.ValueKind != JsonValueKind.Array ||
+            toEl.GetArrayLength() == 0 ||
+            toEl[0].ValueKind != JsonValueKind.Object ||
+            !toEl[0].TryGetProperty("status", out var statusEl))
         {
-            toEl[0].TryGetProperty("status", out var statusEl);
-            status = statusEl.GetString();
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Telnyx");
         }
+
+        var status = statusEl.GetString();
+        if (string.IsNullOrWhiteSpace(status))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Telnyx");
 
         var deliveryStatus = MapDeliveryStatus(status);
 

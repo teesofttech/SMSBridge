@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.AfricasTalking;
 
@@ -14,7 +15,7 @@ internal static class AfricasTalkingSmsResponseMapper
             var root = document.RootElement;
 
             if (!TryGetFirstRecipient(root, out var recipient))
-                return SmsSendResult.Failed(providerName, null, "Unexpected response format", isTransient: false);
+                return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Africa's Talking");
 
             var statusCode = ReadInt32(recipient, "statusCode");
             var messageId = ReadString(recipient, "messageId");
@@ -22,7 +23,11 @@ internal static class AfricasTalkingSmsResponseMapper
             var deliveryStatus = MapDeliveryStatus(statusCode);
 
             if (statusCode is 100 or 101 or 102)
-                return SmsSendResult.Succeeded(providerName, messageId, deliveryStatus);
+            {
+                return string.IsNullOrWhiteSpace(messageId)
+                    ? ProviderResponseFailures.InvalidSuccessResponse(providerName, "Africa's Talking")
+                    : SmsSendResult.Succeeded(providerName, messageId, deliveryStatus);
+            }
 
             var errorCode = statusCode?.ToString(CultureInfo.InvariantCulture);
             var errorMessage = !string.IsNullOrWhiteSpace(status)
@@ -36,13 +41,9 @@ internal static class AfricasTalkingSmsResponseMapper
                 status: deliveryStatus,
                 mayHaveBeenAccepted: IsTransientStatusCode(statusCode));
         }
-        catch (JsonException)
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
         {
-            return SmsSendResult.Failed(
-                providerName,
-                null,
-                "Unable to parse Africa's Talking response.",
-                isTransient: false);
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Africa's Talking");
         }
     }
 

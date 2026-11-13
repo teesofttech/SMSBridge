@@ -1,11 +1,24 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.SmartSms;
 
 internal static class SmartSmsSmsResponseMapper
 {
     public static SmsSendResult FromResponse(string providerName, string json)
+    {
+        try
+        {
+            return ParseResponse(providerName, json);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "SmartSMSSolutions");
+        }
+    }
+
+    private static SmsSendResult ParseResponse(string providerName, string json)
     {
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
@@ -20,7 +33,14 @@ internal static class SmartSmsSmsResponseMapper
         var success = ReadBoolean(root, "success");
 
         if (code == "1000" || success == true)
-            return SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
+        {
+            return string.IsNullOrWhiteSpace(messageId)
+                ? ProviderResponseFailures.InvalidSuccessResponse(providerName, "SmartSMSSolutions")
+                : SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
+        }
+
+        if (string.IsNullOrWhiteSpace(code) && success is null && string.IsNullOrWhiteSpace(message))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "SmartSMSSolutions");
 
         var errorCode = code ?? (success == false ? "success:false" : null);
         return SmsSendResult.Failed(
