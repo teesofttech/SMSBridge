@@ -85,48 +85,51 @@ public static class SmsBridgeServiceCollectionExtensions
     {
         var name = providerSection.Key;
 
-        switch (providerType)
+        builder.RegisterConfiguredProvider(() =>
         {
-            case SmsProviderType.Twilio:
-                builder.UseTwilio(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.Vonage:
-                builder.UseVonage(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.MessageBird:
-                builder.UseMessageBird(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.AwsSns:
-                builder.UseAwsSns(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.Infobip:
-                builder.UseInfobip(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.Termii:
-                builder.UseTermii(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.Unifonic:
-                builder.UseUnifonic(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.Sinch:
-                builder.UseSinch(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.Plivo:
-                builder.UsePlivo(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.Telnyx:
-                builder.UseTelnyx(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.SmartSms:
-                builder.UseSmartSms(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            case SmsProviderType.AfricasTalking:
-                builder.UseAfricasTalking(name, config => BindProviderConfiguration(providerSection, config));
-                break;
-            default:
-                throw new SmsBridgeException(
-                    $"SMS provider '{name}' uses unsupported Type '{providerType}'.");
-        }
+            switch (providerType)
+            {
+                case SmsProviderType.Twilio:
+                    builder.UseTwilio(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.Vonage:
+                    builder.UseVonage(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.MessageBird:
+                    builder.UseMessageBird(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.AwsSns:
+                    builder.UseAwsSns(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.Infobip:
+                    builder.UseInfobip(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.Termii:
+                    builder.UseTermii(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.Unifonic:
+                    builder.UseUnifonic(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.Sinch:
+                    builder.UseSinch(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.Plivo:
+                    builder.UsePlivo(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.Telnyx:
+                    builder.UseTelnyx(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.SmartSms:
+                    builder.UseSmartSms(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                case SmsProviderType.AfricasTalking:
+                    builder.UseAfricasTalking(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
+                default:
+                    throw new SmsBridgeException(
+                        $"SMS provider '{name}' uses unsupported Type '{providerType}'.");
+            }
+        });
     }
 
     private static void BindProviderConfiguration<TConfig>(

@@ -31,7 +31,7 @@ public static class SmartSmsProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.SmartSms);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new SmartSmsSmsProvider(
                 name,
                 options,
