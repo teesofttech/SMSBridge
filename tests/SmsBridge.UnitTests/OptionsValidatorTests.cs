@@ -71,6 +71,31 @@ public sealed class OptionsValidatorTests
         result.Failed.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("twilio", "twilio")]
+    [InlineData("twilio", "TWILIO")]
+    public void Validate_FailsWhenFailoverMatchesDefaultProvider(
+        string defaultProvider,
+        string failoverProvider)
+    {
+        var opts = new SmsBridgeOptions
+        {
+            DefaultProvider = defaultProvider,
+            EnableFailover = true,
+            FailoverProvider = failoverProvider,
+            Providers = new Dictionary<string, SmsProviderOptions>
+            {
+                ["twilio"] = new SmsProviderOptions { Type = Abstractions.SmsProviderType.Twilio }
+            }
+        };
+
+        var result = _validator.Validate(null, opts);
+
+        result.Failed.Should().BeTrue();
+        result.Failures.Should().ContainSingle(failure =>
+            failure.Contains("different provider", StringComparison.OrdinalIgnoreCase));
+    }
+
     [Fact]
     public void Validate_SucceedsWithValidConfiguration()
     {

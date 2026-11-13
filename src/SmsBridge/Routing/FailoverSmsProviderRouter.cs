@@ -36,10 +36,21 @@ internal sealed class FailoverSmsProviderRouter : ISmsProviderRouter
         return provider;
     }
 
-    public ISmsProvider? ResolveFailover()
+    public ISmsProvider? ResolveFailover(ISmsProvider primaryProvider)
     {
         if (!_options.EnableFailover || string.IsNullOrWhiteSpace(_options.FailoverProvider))
             return null;
+
+        if (string.Equals(
+                primaryProvider.Name,
+                _options.FailoverProvider,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning(
+                "Failover provider '{FailoverProvider}' matches the primary provider; failover will not be attempted.",
+                _options.FailoverProvider);
+            return null;
+        }
 
         if (!_providers.TryGetValue(_options.FailoverProvider, out var provider))
         {

@@ -1,6 +1,7 @@
 using System.Net;
-using RichardSzalay.MockHttp;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using RichardSzalay.MockHttp;
 using SmsBridge.Abstractions;
 using SmsBridge.DependencyInjection;
 using SmsBridge.Internal.Http;
@@ -37,6 +38,33 @@ public sealed class FailoverTests
                 o.ApiSecret = "secret";
                 o.From = "MyApp";
             });
+
+    [Theory]
+    [InlineData("twilio")]
+    [InlineData("TWILIO")]
+    public void SmsClient_FailsToResolve_WhenFailoverMatchesDefaultProvider(string failoverProvider)
+    {
+        var services = BaseServices();
+        services.AddSmsBridge(options =>
+            {
+                options.DefaultProvider = "twilio";
+                options.EnableFailover = true;
+                options.FailoverProvider = failoverProvider;
+                options.Providers["twilio"] = new SmsProviderOptions { Type = SmsProviderType.Twilio };
+            })
+            .UseTwilio("twilio", options =>
+            {
+                options.AccountSid = "ACtest";
+                options.AuthToken = "token";
+                options.From = "+15551234567";
+            });
+        using var serviceProvider = services.BuildServiceProvider();
+
+        var act = () => serviceProvider.GetRequiredService<ISmsClient>();
+
+        act.Should().Throw<OptionsValidationException>()
+            .WithMessage("*different provider*");
+    }
 
     [Fact]
     public async Task SmsClient_DoesNotFailOver_WhenPrimaryMayHaveAcceptedMessage()
@@ -137,7 +165,7 @@ public sealed class FailoverTests
             {
                 opts.DefaultProvider = "vonage";
                 opts.EnableFailover = true;
-                opts.FailoverProvider = "vonage";
+                opts.FailoverProvider = "twilio";
                 opts.Providers["twilio"] = new SmsProviderOptions { Type = SmsProviderType.Twilio };
                 opts.Providers["vonage"] = new SmsProviderOptions { Type = SmsProviderType.Vonage };
             })
