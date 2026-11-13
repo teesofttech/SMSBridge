@@ -7,9 +7,9 @@ using SmsBridge.Providers.AwsSns;
 using SmsBridge.Providers.Infobip;
 using SmsBridge.Providers.MessageBird;
 using SmsBridge.Providers.Plivo;
+using SmsBridge.Providers.Sinch;
 using SmsBridge.Providers.Telnyx;
 using SmsBridge.Providers.Termii;
-using SmsBridge.Providers.Sinch;
 using SmsBridge.Providers.Twilio;
 using SmsBridge.Providers.Unifonic;
 using SmsBridge.Providers.Vonage;
@@ -44,7 +44,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.AfricasTalking);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new AfricasTalkingSmsProvider(
                 name,
                 options,
@@ -80,7 +80,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.AwsSns);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new AwsSnsSmsProvider(
                 name,
                 options,
@@ -119,7 +119,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.Termii);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new TermiiSmsProvider(
                 name,
                 options,
@@ -151,7 +151,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.Unifonic);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new UnifonicSmsProvider(
                 name,
                 options,
@@ -189,7 +189,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.Infobip);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new InfobipSmsProvider(
                 name,
                 options,
@@ -221,7 +221,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.MessageBird);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new MessageBirdSmsProvider(
                 name,
                 options,
@@ -257,7 +257,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.Twilio);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new TwilioSmsProvider(
                 name,
                 options,
@@ -292,7 +292,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.Vonage);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new VonageSmsProvider(
                 name,
                 options,
@@ -324,7 +324,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.Telnyx);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new TelnyxSmsProvider(
                 name,
                 options,
@@ -360,7 +360,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.Plivo);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new PlivoSmsProvider(
                 name,
                 options,
@@ -400,7 +400,7 @@ public static class SmsBridgeProviderBuilder
 
         builder.Services.AddHttpClient(HttpClientNames.Sinch);
 
-        builder.Services.AddSingleton<ISmsProvider>(sp =>
+        builder.AddProvider(name, sp =>
             new SinchSmsProvider(
                 name,
                 options,

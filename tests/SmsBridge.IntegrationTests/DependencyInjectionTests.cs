@@ -86,6 +86,102 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void ConfigurationSection_WithFluentProviderOfSameName_UsesFluentRegistration()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["SmsBridge:DefaultProvider"] = "primary",
+                ["SmsBridge:Providers:primary:Type"] = "Twilio",
+                ["SmsBridge:Providers:primary:AccountSid"] = "ACtest",
+                ["SmsBridge:Providers:primary:AuthToken"] = "token",
+                ["SmsBridge:Providers:primary:From"] = "+15551234567"
+            })
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(configuration.GetSection("SmsBridge"))
+            .UseVonage("PRIMARY", options =>
+            {
+                options.ApiKey = "key";
+                options.ApiSecret = "secret";
+                options.From = "SmsBridge";
+            });
+
+        var serviceProvider = services.BuildServiceProvider();
+        var providers = serviceProvider.GetServices<ISmsProvider>().ToArray();
+
+        providers.Should().ContainSingle();
+        providers[0].Name.Should().Be("PRIMARY");
+        providers[0].Type.Should().Be(SmsProviderType.Vonage);
+
+        var router = serviceProvider.GetRequiredService<FailoverSmsProviderRouter>();
+        router.Resolve(new SmsRoutingContext
+        {
+            Message = new SmsMessage { To = "+15551234567", Body = "Test" }
+        }).Should().BeSameAs(providers[0]);
+    }
+
+    [Fact]
+    public void ConfigurationSection_WithEquivalentFluentProvider_RegistersOneProvider()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["SmsBridge:DefaultProvider"] = "twilio",
+                ["SmsBridge:Providers:twilio:Type"] = "Twilio",
+                ["SmsBridge:Providers:twilio:AccountSid"] = "ACconfigured",
+                ["SmsBridge:Providers:twilio:AuthToken"] = "configured-token",
+                ["SmsBridge:Providers:twilio:From"] = "+15551234567"
+            })
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(configuration.GetSection("SmsBridge"))
+            .UseTwilio("twilio", options =>
+            {
+                options.AccountSid = "ACexplicit";
+                options.AuthToken = "explicit-token";
+                options.From = "+15557654321";
+            });
+
+        using var serviceProvider = services.BuildServiceProvider();
+
+        serviceProvider.GetServices<ISmsProvider>().Should().ContainSingle();
+        serviceProvider.GetRequiredService<ISmsClient>().Should().NotBeNull();
+    }
+
+    [Fact]
+    public void FluentProvider_WithDuplicateName_ThrowsDescriptiveSmsBridgeException()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        var builder = services.AddSmsBridge(options =>
+        {
+            options.DefaultProvider = "primary";
+            options.Providers["primary"] = new SmsProviderOptions { Type = SmsProviderType.Twilio };
+        });
+        builder.UseTwilio("primary", options =>
+        {
+            options.AccountSid = "ACtest";
+            options.AuthToken = "token";
+            options.From = "+15551234567";
+        });
+
+        var act = () => builder.UseVonage("PRIMARY", options =>
+        {
+            options.ApiKey = "key";
+            options.ApiSecret = "secret";
+            options.From = "SmsBridge";
+        });
+
+        act.Should().Throw<SmsBridgeException>()
+            .WithMessage("*already been registered explicitly*case-insensitive*");
+    }
+
+    [Fact]
     public void ISmsClient_CanBeResolvedFromDI()
     {
         var services = new ServiceCollection();
