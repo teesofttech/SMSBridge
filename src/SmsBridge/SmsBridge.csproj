@@ -25,6 +25,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="NSec.Cryptography" />
     <PackageReference Include="OpenTelemetry.Api" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>

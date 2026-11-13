@@ -180,11 +180,12 @@ Callback URLs can be configured for providers that support per-message delivery 
 ```
 
 Twilio, Vonage, and Plivo callbacks use flat key/value payloads. Sinch and Telnyx callbacks
-use JSON payloads. Resolve the provider parser with `SmsWebhookParserResolver`, then
-call `Parse(...)` or `ParseJson(...)` as appropriate. For Vonage, set the SMS API
-webhook format to `GET` or `POST`; `POST-JSON` is not supported by SMSBridge's built-in
-Vonage parser. For `GET` callbacks, convert `request.Query` to a dictionary and call
-`Parse(...)`. See [Webhooks](https://teesofttech.github.io/SMSBridge/webhooks.html).
+use JSON payloads. Authenticate untrusted callbacks with the provider-specific verifier and
+`VerifyAndParse(...)`; calling `Parse(...)` or `ParseJson(...)` directly does not verify the
+sender. The verification request preserves the exact public URL, headers, raw body, and form
+or query values required by each provider's signing scheme. See
+[Webhooks](https://teesofttech.github.io/SMSBridge/webhooks.html) for safe ASP.NET Core examples
+and provider configuration details.
 
 ---
 
@@ -225,7 +226,6 @@ policy, and treat that identifier as potentially personal data.
 ## Roadmap
 
 - OpenTelemetry metrics
-- Webhook signature verification
 - Database outbox pattern
 - Advanced retry policies
 - Background processing
