@@ -1,13 +1,90 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SmsBridge.Abstractions;
 using SmsBridge.DependencyInjection;
 using SmsBridge.Options;
+using SmsBridge.Routing;
 
 namespace SmsBridge.IntegrationTests;
 
 public sealed class DependencyInjectionTests
 {
+    [Fact]
+    public void ConfigurationSection_RegistersProviderFromSettingsSubsection()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["SmsBridge:DefaultProvider"] = "twilio",
+                ["SmsBridge:Providers:twilio:Type"] = "Twilio",
+                ["SmsBridge:Providers:twilio:Settings:AccountSid"] = "ACtest",
+                ["SmsBridge:Providers:twilio:Settings:AuthToken"] = "token",
+                ["SmsBridge:Providers:twilio:Settings:From"] = "+15551234567"
+            })
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(configuration.GetSection("SmsBridge"));
+
+        var provider = services.BuildServiceProvider().GetServices<ISmsProvider>().Single();
+        provider.Name.Should().Be("twilio");
+        provider.Type.Should().Be(SmsProviderType.Twilio);
+    }
+
+    [Theory]
+    [InlineData(SmsProviderType.Twilio, "AccountSid=ACtest|AuthToken=token|From=+15551234567")]
+    [InlineData(SmsProviderType.Vonage, "ApiKey=key|ApiSecret=secret|From=SmsBridge")]
+    [InlineData(SmsProviderType.MessageBird, "AccessKey=key|From=SmsBridge")]
+    [InlineData(SmsProviderType.AwsSns, "AccessKeyId=key|SecretAccessKey=secret|Region=eu-west-2")]
+    [InlineData(SmsProviderType.Infobip, "ApiKey=key|BaseUrl=https://example.api.infobip.com|From=SmsBridge")]
+    [InlineData(SmsProviderType.Termii, "ApiKey=key|From=SmsBridge")]
+    [InlineData(SmsProviderType.Unifonic, "AppSid=app-sid|From=SmsBridge")]
+    [InlineData(SmsProviderType.Sinch, "ServicePlanId=plan-id|ApiToken=token|From=SmsBridge")]
+    [InlineData(SmsProviderType.Plivo, "AuthId=auth-id|AuthToken=token|From=SmsBridge")]
+    [InlineData(SmsProviderType.Telnyx, "ApiKey=key|From=+15551234567")]
+    [InlineData(SmsProviderType.SmartSms, "Token=token|From=SmsBridge")]
+    [InlineData(SmsProviderType.AfricasTalking, "Username=user|ApiKey=key")]
+    public void ConfigurationSection_RegistersConfiguredProvider(
+        SmsProviderType providerType,
+        string serialisedSettings)
+    {
+        const string providerName = "primary";
+        var settings = new Dictionary<string, string?>
+        {
+            ["SmsBridge:DefaultProvider"] = providerName,
+            [$"SmsBridge:Providers:{providerName}:Type"] = providerType.ToString()
+        };
+        foreach (var setting in serialisedSettings.Split('|'))
+        {
+            var pair = setting.Split('=', 2);
+            settings[$"SmsBridge:Providers:{providerName}:{pair[0]}"] = pair[1];
+        }
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(settings)
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(configuration.GetSection("SmsBridge"));
+
+        var serviceProvider = services.BuildServiceProvider();
+        var providers = serviceProvider.GetServices<ISmsProvider>().ToArray();
+
+        providers.Should().ContainSingle();
+        providers[0].Name.Should().Be(providerName);
+        providers[0].Type.Should().Be(providerType);
+
+        var router = serviceProvider.GetRequiredService<FailoverSmsProviderRouter>();
+        var resolvedProvider = router.Resolve(new SmsRoutingContext
+        {
+            Message = new SmsMessage { To = "+15551234567", Body = "Test" }
+        });
+        resolvedProvider.Should().BeSameAs(providers[0]);
+    }
+
     [Fact]
     public void ISmsClient_CanBeResolvedFromDI()
     {
