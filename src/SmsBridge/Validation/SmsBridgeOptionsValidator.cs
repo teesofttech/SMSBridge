@@ -27,6 +27,15 @@ internal sealed class SmsBridgeOptionsValidator : IValidateOptions<SmsBridgeOpti
         {
             if (string.IsNullOrWhiteSpace(options.FailoverProvider))
                 failures.Add("'SmsBridge:FailoverProvider' must be set when failover is enabled.");
+            else if (string.Equals(
+                         options.DefaultProvider,
+                         options.FailoverProvider,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                failures.Add(
+                    "'SmsBridge:FailoverProvider' must reference a different provider from " +
+                    "'SmsBridge:DefaultProvider'.");
+            }
             else if (!options.Providers.ContainsKey(options.FailoverProvider))
                 failures.Add($"Failover provider '{options.FailoverProvider}' is not configured.");
         }

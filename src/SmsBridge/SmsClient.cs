@@ -61,7 +61,7 @@ internal sealed class SmsClient : ISmsClient
             _options.EnableFailover &&
             string.IsNullOrWhiteSpace(message.Provider))
         {
-            var failover = _router.ResolveFailover();
+            var failover = _router.ResolveFailover(provider);
             if (failover is not null)
             {
                 _logger.LogInformation("SmsBridge: attempting failover to provider '{FailoverProvider}'", failover.Name);
