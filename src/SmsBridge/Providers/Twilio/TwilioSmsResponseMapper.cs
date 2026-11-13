@@ -1,11 +1,24 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.Twilio;
 
 internal static class TwilioSmsResponseMapper
 {
     public static SmsSendResult FromResponse(string providerName, string json)
+    {
+        try
+        {
+            return ParseResponse(providerName, json);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Twilio");
+        }
+    }
+
+    private static SmsSendResult ParseResponse(string providerName, string json)
     {
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
@@ -15,6 +28,9 @@ internal static class TwilioSmsResponseMapper
         var sid = root.TryGetProperty("sid", out var sidEl) ? sidEl.GetString() : null;
         var errorCode = root.TryGetProperty("error_code", out var ecEl) ? ReadErrorCode(ecEl) : null;
         var errorMessage = root.TryGetProperty("error_message", out var emEl) ? emEl.GetString() : null;
+
+        if (string.IsNullOrWhiteSpace(status))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Twilio");
 
         var deliveryStatus = MapDeliveryStatus(status);
 
@@ -26,7 +42,9 @@ internal static class TwilioSmsResponseMapper
                 mayHaveBeenAccepted: true);
         }
 
-        return SmsSendResult.Succeeded(providerName, sid, deliveryStatus);
+        return string.IsNullOrWhiteSpace(sid)
+            ? ProviderResponseFailures.InvalidSuccessResponse(providerName, "Twilio")
+            : SmsSendResult.Succeeded(providerName, sid, deliveryStatus);
     }
 
     public static SmsSendResult FromErrorResponse(string providerName, int httpStatusCode, string json)

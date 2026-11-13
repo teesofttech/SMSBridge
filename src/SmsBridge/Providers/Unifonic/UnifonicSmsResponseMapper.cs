@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.Unifonic;
 
@@ -38,7 +39,20 @@ internal static class UnifonicSmsResponseMapper
                 ?? ReadString(root, "error");
 
             if (success == true || IsSuccessCode(errorCode) || IsAcceptedStatus(status))
+            {
+                if (string.IsNullOrWhiteSpace(messageId))
+                    return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Unifonic");
+
                 return SmsSendResult.Succeeded(providerName, messageId, MapStatus(status));
+            }
+
+            if (success is null &&
+                string.IsNullOrWhiteSpace(errorCode) &&
+                string.IsNullOrWhiteSpace(status) &&
+                string.IsNullOrWhiteSpace(errorMessage))
+            {
+                return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Unifonic");
+            }
 
             return SmsSendResult.Failed(
                 providerName,
@@ -47,13 +61,9 @@ internal static class UnifonicSmsResponseMapper
                 isTransient: IsTransientStatus(status) || IsTransientErrorCode(errorCode),
                 mayHaveBeenAccepted: IsTransientStatus(status) || IsTransientErrorCode(errorCode));
         }
-        catch (JsonException)
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
         {
-            return SmsSendResult.Failed(
-                providerName,
-                null,
-                "Unable to parse Unifonic response.",
-                isTransient: false);
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Unifonic");
         }
     }
 

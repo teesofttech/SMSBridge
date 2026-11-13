@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SmsBridge.Abstractions;
+using SmsBridge.Internal;
 
 namespace SmsBridge.Providers.Vonage;
 
@@ -7,21 +8,44 @@ internal static class VonageSmsResponseMapper
 {
     public static SmsSendResult FromResponse(string providerName, string json)
     {
+        try
+        {
+            return ParseResponse(providerName, json);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Vonage");
+        }
+    }
+
+    private static SmsSendResult ParseResponse(string providerName, string json)
+    {
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
         // Vonage returns { "messages": [ { "status": "0", "message-id": "...", ... } ] }
-        if (!root.TryGetProperty("messages", out var messages) || messages.GetArrayLength() == 0)
-            return SmsSendResult.Failed(providerName, null, "Vonage returned an empty messages array");
+        if (!root.TryGetProperty("messages", out var messages) ||
+            messages.ValueKind != JsonValueKind.Array ||
+            messages.GetArrayLength() == 0)
+        {
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Vonage");
+        }
 
         var first = messages[0];
         var status = first.TryGetProperty("status", out var statusEl) ? statusEl.GetString() : null;
         var messageId = first.TryGetProperty("message-id", out var idEl) ? idEl.GetString() : null;
         var errorText = first.TryGetProperty("error-text", out var errEl) ? errEl.GetString() : null;
 
+        if (string.IsNullOrWhiteSpace(status))
+            return ProviderResponseFailures.InvalidSuccessResponse(providerName, "Vonage");
+
         // Status "0" means success in Vonage API v1
         if (status == "0")
-            return SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
+        {
+            return string.IsNullOrWhiteSpace(messageId)
+                ? ProviderResponseFailures.InvalidSuccessResponse(providerName, "Vonage")
+                : SmsSendResult.Succeeded(providerName, messageId, SmsDeliveryStatus.Accepted);
+        }
 
         bool isTransient = IsTransientStatus(status);
         return SmsSendResult.Failed(providerName, status, errorText, isTransient);
