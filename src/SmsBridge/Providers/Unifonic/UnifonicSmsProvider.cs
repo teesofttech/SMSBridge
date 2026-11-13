@@ -35,8 +35,7 @@ internal sealed class UnifonicSmsProvider : ISmsProvider
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "Unifonic: sending SMS to {To} via provider '{Provider}'",
-            message.To,
+            "Unifonic: sending SMS via provider '{Provider}'",
             Name);
 
         var parameters = UnifonicSmsRequestMapper.ToQueryParameters(message, _options);

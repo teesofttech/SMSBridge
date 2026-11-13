@@ -29,7 +29,7 @@ internal sealed class SinchSmsProvider : ISmsProvider
 
     public async Task<SmsSendResult> SendAsync(SmsMessage message, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Sinch: sending SMS to {To} via provider '{Provider}'", message.To, Name);
+        _logger.LogDebug("Sinch: sending SMS via provider '{Provider}'", Name);
 
         var url = $"{_options.BaseUrl}/xms/v1/{_options.ServicePlanId}/batches";
         var body = SinchSmsRequestMapper.ToRequestBody(message, _options);

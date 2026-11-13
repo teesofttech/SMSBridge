@@ -28,7 +28,7 @@ internal sealed class VonageSmsProvider : ISmsProvider
 
     public async Task<SmsSendResult> SendAsync(SmsMessage message, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Vonage: sending SMS to {To} via provider '{Provider}'", message.To, Name);
+        _logger.LogDebug("Vonage: sending SMS via provider '{Provider}'", Name);
 
         const string url = "https://rest.nexmo.com/sms/json";
         var fields = VonageSmsRequestMapper.ToFormFields(message, _options);

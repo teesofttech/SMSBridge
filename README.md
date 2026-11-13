@@ -188,6 +188,21 @@ Vonage parser. For `GET` callbacks, convert `request.Query` to a dictionary and 
 
 ---
 
+## Diagnostics and privacy
+
+SMSBridge logs provider names, outcomes, error details and provider message IDs for
+operational diagnosis. It does not log message bodies or recipient phone numbers, and
+its OpenTelemetry activities do not contain recipient-derived hashes or correlation
+values.
+
+Masking and unkeyed hashes should not be treated as anonymisation: phone-number inputs
+have a small, enumerable search space and can still be correlated or reversed. If an
+application needs recipient-level correlation, create an opaque, application-controlled
+identifier that is not derived from the phone number, apply an appropriate retention
+policy, and treat that identifier as potentially personal data.
+
+---
+
 ## Supported Providers
 
 | Provider | Status |

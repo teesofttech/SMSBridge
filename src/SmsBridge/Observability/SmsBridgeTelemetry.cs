@@ -10,17 +10,10 @@ public static class SmsBridgeTelemetry
 
     private static readonly ActivitySource ActivitySource = new(ActivitySourceName, Version);
 
-    internal static Activity? StartSendActivity(string provider, string to)
+    internal static Activity? StartSendActivity(string provider)
     {
         var activity = ActivitySource.StartActivity("sms.send", ActivityKind.Client);
         activity?.SetTag("sms.provider", provider);
-        activity?.SetTag("sms.to.hash", HashPhone(to));
         return activity;
-    }
-
-    private static string HashPhone(string phone)
-    {
-        var bytes = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(phone));
-        return Convert.ToHexString(bytes)[..8];
     }
 }

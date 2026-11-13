@@ -36,7 +36,7 @@ internal sealed class SmsClient : ISmsClient
 
         var provider = _router.Resolve(context);
 
-        using var activity = SmsBridgeTelemetry.StartSendActivity(provider.Name, message.To);
+        using var activity = SmsBridgeTelemetry.StartSendActivity(provider.Name);
 
         _logger.LogInformation("SmsBridge: sending SMS via provider '{Provider}'", provider.Name);
 

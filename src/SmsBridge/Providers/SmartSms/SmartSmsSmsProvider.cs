@@ -34,8 +34,7 @@ internal sealed class SmartSmsSmsProvider : ISmsProvider
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "SmartSMSSolutions: sending SMS to {To} via provider '{Provider}'",
-            message.To,
+            "SmartSMSSolutions: sending SMS via provider '{Provider}'",
             Name);
 
         var body = SmartSmsSmsRequestMapper.ToRequestBody(message, _options);

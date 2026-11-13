@@ -32,8 +32,7 @@ internal sealed class AwsSnsSmsProvider : ISmsProvider
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "AWS SNS: sending SMS to {To} via provider '{Provider}'",
-            message.To,
+            "AWS SNS: sending SMS via provider '{Provider}'",
             Name);
 
         var url = $"https://sns.{_options.Region}.amazonaws.com/";
