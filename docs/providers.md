@@ -184,3 +184,22 @@ SMSBridge submits the documented `username`, `to`, `message`, and optional
 `from` fields, authenticates with the `apiKey` request header, and supports
 `bulkSMSMode`, `enqueue`, `keyword`, `linkId`, and `retryDurationInHours`
 through message metadata.
+
+## Arkesel (SMS V1)
+
+```csharp
+.UseArkesel("arkesel", o =>
+{
+    o.ApiKey = "your-api-key";
+    o.Sender = "MyApp";
+    o.UseCase = "your-use-case"; // optional, for Nigerian recipients where required
+})
+```
+
+Uses the Arkesel SMS V1 `GET https://sms.arkesel.com/sms/api?action=send-sms`
+endpoint with `api_key`, `to`, `from` and `sms` parameters. API keys and
+message content are included in the query string by the V1 protocol. Avoid
+recording full request URLs in HTTP diagnostics and reverse-proxy logs.
+
+SMS V2 is not yet implemented; its endpoint and authentication must be verified
+against the current official OpenAPI specification before adding support.

@@ -40,6 +40,7 @@ public sealed class DependencyInjectionTests
     [InlineData(SmsProviderType.AwsSns, "AccessKeyId=key|SecretAccessKey=secret|Region=eu-west-2")]
     [InlineData(SmsProviderType.Infobip, "ApiKey=key|BaseUrl=https://example.api.infobip.com|From=SmsBridge")]
     [InlineData(SmsProviderType.Termii, "ApiKey=key|From=SmsBridge")]
+    [InlineData(SmsProviderType.Arkesel, "ApiKey=key|Sender=SmsBridge")]
     [InlineData(SmsProviderType.Unifonic, "AppSid=app-sid|From=SmsBridge")]
     [InlineData(SmsProviderType.Sinch, "ServicePlanId=plan-id|ApiToken=token|From=SmsBridge")]
     [InlineData(SmsProviderType.Plivo, "AuthId=auth-id|AuthToken=token|From=SmsBridge")]
