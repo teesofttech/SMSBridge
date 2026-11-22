@@ -35,7 +35,7 @@ internal sealed class ArkeselSmsProvider : ISmsProvider
         {
             response = await client.SendAsync(request, cancellationToken);
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
             _logger.LogWarning("Arkesel: HTTP request failed for provider '{Provider}'", Name);
             return SmsSendResult.Failed(Name, null, "Arkesel HTTP request failed.",
