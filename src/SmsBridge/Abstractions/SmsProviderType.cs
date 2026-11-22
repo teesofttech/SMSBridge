@@ -14,5 +14,6 @@ public enum SmsProviderType
     Plivo = 9,
     Telnyx = 10,
     SmartSms = 11,
-    AfricasTalking = 12
+    AfricasTalking = 12,
+    Arkesel = 13
 }
