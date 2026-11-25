@@ -23,7 +23,9 @@ internal sealed class FailoverSmsProviderRouter : ISmsProviderRouter
 
     public ISmsProvider Resolve(SmsRoutingContext context)
     {
-        var providerName = context.ExplicitProvider ?? _options.DefaultProvider;
+        var providerName = string.IsNullOrWhiteSpace(context.ExplicitProvider)
+            ? _options.DefaultProvider
+            : context.ExplicitProvider;
 
         if (string.IsNullOrWhiteSpace(providerName))
             throw new SmsBridgeException(

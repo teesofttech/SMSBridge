@@ -8,6 +8,7 @@ using SmsBridge.Routing;
 
 namespace SmsBridge.UnitTests;
 
+[Collection("SmsBridgeTelemetry")]
 public sealed class DiagnosticsPrivacyTests
 {
     [Fact]

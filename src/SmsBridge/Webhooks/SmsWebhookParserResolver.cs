@@ -7,8 +7,17 @@ public sealed class SmsWebhookParserResolver
 {
     private readonly IReadOnlyDictionary<SmsProviderType, ISmsWebhookParser> _parsers;
 
-    public SmsWebhookParserResolver(IEnumerable<ISmsWebhookParser> parsers) =>
-        _parsers = parsers.ToDictionary(p => p.Provider);
+    public SmsWebhookParserResolver(IEnumerable<ISmsWebhookParser> parsers)
+    {
+        var map = new Dictionary<SmsProviderType, ISmsWebhookParser>();
+
+        // Last registration wins, matching how the DI container resolves a single service,
+        // so a parser registered after AddSmsBridge replaces the built-in one.
+        foreach (var parser in parsers)
+            map[parser.Provider] = parser;
+
+        _parsers = map;
+    }
 
     public ISmsWebhookParser Resolve(SmsProviderType provider)
     {
