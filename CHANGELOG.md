@@ -11,12 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- .NET 11 support for the SDK, samples, CI and release publishing. The full test suite runs on .NET 10 and .NET 11.
 - NuGet package icon (#64)
 - Documentation site logo and favicon (#65)
 
 ### Changed
 
 - Polished the GitHub Pages documentation design (#66)
+
+### Removed
+
+- **Breaking:** The NuGet package now requires .NET 10 or later. Applications
+  targeting .NET 8 or 9 should stay on the latest compatible SMSBridge release
+  until they can upgrade their target framework.
 
 ## [0.5.0] - 2026-07-08
 

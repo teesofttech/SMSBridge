@@ -234,9 +234,11 @@ policy, and treat that identifier as potentially personal data.
 
 ## Target Frameworks
 
-- .NET 8
-- .NET 9
-- .NET 10
+- .NET 10 (minimum)
+- .NET 11
+
+If your application still targets .NET 8 or 9, stay on the latest compatible
+SMSBridge release until you can retarget your application to .NET 10 or 11.
 
 ---
 
