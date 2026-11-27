@@ -19,4 +19,5 @@ internal static class HttpClientNames
     public const string Textmagic = "SmsBridge.Textmagic";
     public const string Esendex = "SmsBridge.Esendex";
     public const string LinkMobility = "SmsBridge.LinkMobility";
+    public const string Exotel = "SmsBridge.Exotel";
 }

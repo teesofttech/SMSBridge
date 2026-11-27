@@ -292,3 +292,28 @@ format with a leading plus sign. A message can override the configured sender
 through `SmsMessage.From`. Use a leading plus sign for a mobile number sender.
 Code `1005` means the gateway queued the message and supplies a message ID.
 See the [Common Platform outbound SMS guide](https://docs.linkmobility.com/api/documents/file/SMS_REST_API_MT_DLR-2.8.pdf).
+
+## Exotel
+
+```csharp
+.UseExotel("exotel", o =>
+{
+    o.AccountSid = configuration["Exotel:AccountSid"];
+    o.ApiKey = configuration["Exotel:ApiKey"];
+    o.AuthToken = configuration["Exotel:AuthToken"];
+    o.From = "EXOTEL"; // Use your approved sender ID or ExoPhone
+    o.Region = ExotelRegion.Mumbai;
+    o.DltEntityId = configuration["Exotel:DltEntityId"];
+    o.DltTemplateId = configuration["Exotel:DltTemplateId"];
+})
+```
+
+For configuration-based registration, set `Type` to `Exotel` and supply the
+same settings. Choose the region assigned to your Exotel account. `Singapore`
+is the default, and `Mumbai` selects the India hostname.
+
+SMSBridge sends the Account SID in the path and the API key and token in the
+Basic authentication header. Use `SmsMessage.From` to override the configured
+sender. For Indian recipients, use the approved sender and configure
+`DltEntityId` and the applicable `DltTemplateId` according to your account's
+requirements. See the [Exotel Send SMS reference](https://developer.exotel.com/docs/sms-api/api-reference/send-sms).

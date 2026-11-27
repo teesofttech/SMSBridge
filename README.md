@@ -225,6 +225,7 @@ policy, and treat that identifier as potentially personal data.
 | Textmagic | Supported |
 | Esendex | Supported |
 | LINK Mobility (Common Platform) | Supported |
+| Exotel | Supported |
 
 ---
 

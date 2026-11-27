@@ -119,6 +119,9 @@ public static class SmsBridgeServiceCollectionExtensions
                 case SmsProviderType.LinkMobility:
                     builder.UseLinkMobility(name, config => BindProviderConfiguration(providerSection, config));
                     break;
+                case SmsProviderType.Exotel:
+                    builder.UseExotel(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
                 case SmsProviderType.Termii:
                     builder.UseTermii(name, config => BindProviderConfiguration(providerSection, config));
                     break;

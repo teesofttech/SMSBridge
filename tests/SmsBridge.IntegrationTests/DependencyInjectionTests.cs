@@ -46,6 +46,7 @@ public sealed class DependencyInjectionTests
     [InlineData(SmsProviderType.Textmagic, "Username=user|ApiKey=key|From=SmsBridge")]
     [InlineData(SmsProviderType.Esendex, "Username=user@example.com|Password=secret|AccountReference=EX0000000")]
     [InlineData(SmsProviderType.LinkMobility, "Username=user|Password=secret|PlatformId=platform|PlatformPartnerId=partner|From=SmsBridge|BaseUrl=https://eu.linkmobility.io/")]
+    [InlineData(SmsProviderType.Exotel, "AccountSid=account|ApiKey=key|AuthToken=token|From=EXOTEL|Region=Mumbai")]
     [InlineData(SmsProviderType.Unifonic, "AppSid=app-sid|From=SmsBridge")]
     [InlineData(SmsProviderType.Sinch, "ServicePlanId=plan-id|ApiToken=token|From=SmsBridge")]
     [InlineData(SmsProviderType.Plivo, "AuthId=auth-id|AuthToken=token|From=SmsBridge")]
