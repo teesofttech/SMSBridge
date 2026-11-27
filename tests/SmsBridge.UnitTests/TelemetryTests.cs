@@ -4,10 +4,16 @@ using SmsBridge.Observability;
 
 namespace SmsBridge.UnitTests;
 
-// Shares the process-wide SmsBridge ActivitySource with DiagnosticsPrivacyTests, so they must not run in parallel.
-[Collection("SmsBridgeTelemetry")]
 public sealed class TelemetryTests
 {
+    [Fact]
+    public void LegacyVersion_RemainsAvailableAsAConstant()
+    {
+        const string version = SmsBridgeTelemetry.Version;
+
+        version.Should().Be("0.1.0");
+    }
+
     [Fact]
     public void ActivitySource_Version_MatchesAssemblyInformationalVersionWithoutMetadata()
     {
