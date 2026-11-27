@@ -266,3 +266,29 @@ SMSBridge sends XML to the Message Dispatcher with HTTP Basic authentication
 and asks Esendex to detect the character set. A single-message acknowledgement
 provides the message header ID in `SmsSendResult.ProviderMessageId`.
 See the [Esendex Message Dispatcher documentation](https://developers.esendex.com/api-reference/#messagedispatcher).
+
+## LINK Mobility (Common Platform)
+
+```csharp
+.UseLinkMobility("link", o =>
+{
+    o.Username = configuration["LinkMobility:Username"];
+    o.Password = configuration["LinkMobility:Password"];
+    o.PlatformId = "your-platform-id";
+    o.PlatformPartnerId = "your-partner-id";
+    o.From = "MyApp";
+    o.BaseUrl = "https://eu.linkmobility.io"; // Use the gateway assigned to your account
+})
+```
+
+For configuration-based registration, set `Type` to `LinkMobility` and provide
+the same settings. Set `BaseUrl` to the HTTPS gateway origin, for example
+`https://eu.linkmobility.io`. Without an override, SMSBridge uses the legacy
+gateway `https://wsx.sp247.net`.
+
+This integration uses Common Platform Basic authentication and submits one
+outbound SMS per request to `/sms/send`. Pass the recipient in international
+format with a leading plus sign. A message can override the configured sender
+through `SmsMessage.From`. Use a leading plus sign for a mobile number sender.
+Code `1005` means the gateway queued the message and supplies a message ID.
+See the [Common Platform outbound SMS guide](https://docs.linkmobility.com/api/documents/file/SMS_REST_API_MT_DLR-2.8.pdf).

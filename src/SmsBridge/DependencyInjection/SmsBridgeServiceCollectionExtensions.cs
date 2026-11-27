@@ -116,6 +116,9 @@ public static class SmsBridgeServiceCollectionExtensions
                 case SmsProviderType.Esendex:
                     builder.UseEsendex(name, config => BindProviderConfiguration(providerSection, config));
                     break;
+                case SmsProviderType.LinkMobility:
+                    builder.UseLinkMobility(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
                 case SmsProviderType.Termii:
                     builder.UseTermii(name, config => BindProviderConfiguration(providerSection, config));
                     break;

@@ -224,6 +224,7 @@ policy, and treat that identifier as potentially personal data.
 | seven.io | Supported |
 | Textmagic | Supported |
 | Esendex | Supported |
+| LINK Mobility (Common Platform) | Supported |
 
 ---
 
