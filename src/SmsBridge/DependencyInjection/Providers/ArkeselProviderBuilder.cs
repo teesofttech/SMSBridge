@@ -6,7 +6,7 @@ using SmsBridge.Providers.Arkesel;
 
 namespace SmsBridge.DependencyInjection;
 
-/// <summary>Registration extensions for the Arkesel SMS V1 provider.</summary>
+/// <summary>Registration extensions for the Arkesel SMS V2 provider.</summary>
 public static class ArkeselProviderBuilder
 {
     public static SmsBridgeBuilder UseArkesel(this SmsBridgeBuilder builder, string name,
@@ -26,7 +26,9 @@ public static class ArkeselProviderBuilder
             Sender = config.Sender,
             UseCase = config.UseCase
         };
-        builder.Services.AddHttpClient(HttpClientNames.Arkesel);
+        // A redirect could forward the custom API-key header or resend the SMS body.
+        builder.Services.AddHttpClient(HttpClientNames.Arkesel)
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         builder.AddProvider(name, sp => new ArkeselSmsProvider(
             name, options,
             sp.GetRequiredService<IHttpClientFactory>(),

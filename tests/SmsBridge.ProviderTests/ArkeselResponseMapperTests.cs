@@ -5,66 +5,76 @@ namespace SmsBridge.ProviderTests;
 
 public sealed class ArkeselResponseMapperTests
 {
+    private const string Recipient = "+233123456789";
+
     [Fact]
-    public void PlainOk_IsAcceptedWithoutMessageId()
+    public void Success_MapsReferenceForRequestedRecipient()
     {
-        var result = ArkeselSmsResponseMapper.FromResponse("arkesel", "OK");
+        var result = Map("""{"status":"success","data":[{"recipient":"233999999999","id":"other"},{"recipient":"233123456789","id":"msg-123"}]}""");
         result.Success.Should().BeTrue();
-        result.ProviderMessageId.Should().BeNull();
+        result.ProviderMessageId.Should().Be("msg-123");
         result.Status.Should().Be(SmsDeliveryStatus.Accepted);
     }
 
-    [Theory]
-    [InlineData("100")]
-    [InlineData("101")]
-    [InlineData("102")]
-    [InlineData("103")]
-    [InlineData("104")]
-    [InlineData("105")]
-    [InlineData("106")]
-    [InlineData("109")]
-    [InlineData("111")]
-    public void DocumentedV1ErrorCodes_AreFailures(string code)
-    {
-        var result = ArkeselSmsResponseMapper.FromResponse("arkesel", code);
-        result.Success.Should().BeFalse();
-        result.ErrorCode.Should().Be(code);
-        result.IsTransientFailure.Should().BeFalse();
-    }
-
     [Fact]
-    public void JsonSuccess_MapsProviderReference()
+    public void SuccessMessage_IsAcceptedWithoutReference()
     {
-        var result = ArkeselSmsResponseMapper.FromResponse(
-            "arkesel", """{"status":"OK","message_id":"msg-123"}""");
+        var result = Map("""{"status":"success","message":"SMS accepted"}""");
         result.Success.Should().BeTrue();
-        result.ProviderMessageId.Should().Be("msg-123");
+        result.ProviderMessageId.Should().BeNull();
     }
 
     [Fact]
-    public void UnknownSuccessResponse_IsAmbiguousFailure()
+    public void SuccessEnvelope_WithRejectedRecipient_ReturnsFailure()
     {
-        var result = ArkeselSmsResponseMapper.FromResponse("arkesel", "unrecognised response");
+        var result = Map("""{"status":"success","data":[{"invalid numbers":["233123456789"]}]}""");
         result.Success.Should().BeFalse();
-        result.MayHaveBeenAccepted.Should().BeTrue();
+        result.ErrorCode.Should().Be("invalid_recipient");
+        result.MayHaveBeenAccepted.Should().BeFalse();
+        result.ErrorMessage.Should().NotContain("233123456789");
     }
 
     [Fact]
-    public void Http503_IsTransientAndPotentiallyAccepted()
+    public void ErrorEnvelope_WithHttpSuccess_ReturnsFailure()
     {
-        var result = ArkeselSmsResponseMapper.FromErrorResponse("arkesel", 503, "{}");
+        var result = Map("""{"status":"error","message":"Sensitive provider text"}""");
         result.Success.Should().BeFalse();
-        result.IsTransientFailure.Should().BeTrue();
-        result.MayHaveBeenAccepted.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Http401_IsNotTransient()
-    {
-        var result = ArkeselSmsResponseMapper.FromErrorResponse("arkesel", 401,
-            """{"code":401,"message":"Invalid API key"}""");
-        result.ErrorCode.Should().Be("401");
-        result.ErrorMessage.Should().Be("Invalid API key");
+        result.ErrorCode.Should().Be("error");
+        result.ErrorMessage.Should().NotContain("Sensitive provider text");
         result.IsTransientFailure.Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData("OK")]
+    [InlineData("[]")]
+    [InlineData("""{"status":"success"}""")]
+    [InlineData("""{"status":"success","data":{}}""")]
+    [InlineData("""{"status":"success","data":[]}""")]
+    [InlineData("""{"status":"success","data":[{"recipient":"233999999999","id":"other"}]}""")]
+    public void UnexpectedSuccessResponse_IsAmbiguousFailure(string body)
+    {
+        var result = Map(body);
+        result.Success.Should().BeFalse();
+        result.MayHaveBeenAccepted.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(401, false, false)]
+    [InlineData(402, false, false)]
+    [InlineData(403, false, false)]
+    [InlineData(422, false, false)]
+    [InlineData(429, true, false)]
+    [InlineData(500, true, true)]
+    [InlineData(503, true, true)]
+    public void HttpFailure_PreservesStatusAndRetrySemantics(int status, bool transient, bool mayHaveBeenAccepted)
+    {
+        var result = ArkeselSmsResponseMapper.FromErrorResponse("arkesel", status);
+        result.Success.Should().BeFalse();
+        result.ErrorCode.Should().Be(status.ToString());
+        result.IsTransientFailure.Should().Be(transient);
+        result.MayHaveBeenAccepted.Should().Be(mayHaveBeenAccepted);
+    }
+
+    private static SmsSendResult Map(string body) =>
+        ArkeselSmsResponseMapper.FromResponse("arkesel", Recipient, body);
 }

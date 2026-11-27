@@ -185,21 +185,22 @@ SMSBridge submits the documented `username`, `to`, `message`, and optional
 `bulkSMSMode`, `enqueue`, `keyword`, `linkId`, and `retryDurationInHours`
 through message metadata.
 
-## Arkesel (SMS V1)
+## Arkesel (SMS V2)
 
 ```csharp
 .UseArkesel("arkesel", o =>
 {
     o.ApiKey = "your-api-key";
     o.Sender = "MyApp";
-    o.UseCase = "your-use-case"; // optional, for Nigerian recipients where required
+    o.UseCase = "transactional"; // optional, for Nigerian traffic
 })
 ```
 
-Uses the Arkesel SMS V1 `GET https://sms.arkesel.com/sms/api?action=send-sms`
-endpoint with `api_key`, `to`, `from` and `sms` parameters. API keys and
-message content are included in the query string by the V1 protocol. Avoid
-recording full request URLs in HTTP diagnostics and reverse-proxy logs.
+SMSBridge sends outbound messages through Arkesel's SMS V2 endpoint at
+`https://sms.arkesel.com/api/v2/sms/send`. It puts the API key in the `api-key`
+header and sends the sender, message and recipient in the JSON body.
 
-SMS V2 is not yet implemented; its endpoint and authentication must be verified
-against the current official OpenAPI specification before adding support.
+Configure `Sender` with an approved sender ID of up to 11 characters.
+`SmsMessage.From` can override it per message. For Nigerian traffic, set
+`UseCase` to `transactional` or `promotional` as appropriate.
+See the [Arkesel API documentation](https://developers.arkesel.com/) for details.
