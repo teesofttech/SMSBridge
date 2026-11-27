@@ -44,6 +44,7 @@ public sealed class DependencyInjectionTests
     [InlineData(SmsProviderType.Arkesel, "ApiKey=key|Sender=SmsBridge")]
     [InlineData(SmsProviderType.SevenIo, "ApiKey=key|From=SmsBridge")]
     [InlineData(SmsProviderType.Textmagic, "Username=user|ApiKey=key|From=SmsBridge")]
+    [InlineData(SmsProviderType.Esendex, "Username=user@example.com|Password=secret|AccountReference=EX0000000")]
     [InlineData(SmsProviderType.Unifonic, "AppSid=app-sid|From=SmsBridge")]
     [InlineData(SmsProviderType.Sinch, "ServicePlanId=plan-id|ApiToken=token|From=SmsBridge")]
     [InlineData(SmsProviderType.Plivo, "AuthId=auth-id|AuthToken=token|From=SmsBridge")]

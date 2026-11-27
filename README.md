@@ -223,6 +223,7 @@ policy, and treat that identifier as potentially personal data.
 | Arkesel (SMS V2) | Supported |
 | seven.io | Supported |
 | Textmagic | Supported |
+| Esendex | Supported |
 
 ---
 

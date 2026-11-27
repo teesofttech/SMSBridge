@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Esendex Message Dispatcher outbound SMS provider with fluent and configuration-based registration (#25).
+
 - Textmagic REST API V2 outbound SMS provider with fluent and configuration-based registration (#26).
 
 - seven.io outbound SMS provider with fluent and configuration-based registration (#27).

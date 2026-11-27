@@ -17,5 +17,6 @@ public enum SmsProviderType
     AfricasTalking = 12,
     Arkesel = 13,
     SevenIo = 14,
-    Textmagic = 15
+    Textmagic = 15,
+    Esendex = 16
 }
