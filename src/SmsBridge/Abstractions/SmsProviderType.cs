@@ -19,5 +19,6 @@ public enum SmsProviderType
     SevenIo = 14,
     Textmagic = 15,
     Esendex = 16,
-    LinkMobility = 17
+    LinkMobility = 17,
+    Exotel = 18
 }

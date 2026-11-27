@@ -45,7 +45,7 @@ layout: default
   <h2>Supported Providers</h2>
   <p>
     Twilio, Vonage, Sinch, Plivo, Telnyx, MessageBird, AWS SNS, Infobip,
-    SmartSMSSolutions, Termii, Unifonic, Africa's Talking, Arkesel, seven.io, Textmagic, Esendex, and LINK Mobility.
+    SmartSMSSolutions, Termii, Unifonic, Africa's Talking, Arkesel, seven.io, Textmagic, Esendex, LINK Mobility, and Exotel.
   </p>
 </section>
 

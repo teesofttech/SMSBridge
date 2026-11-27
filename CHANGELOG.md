@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Exotel outbound SMS provider with Singapore and Mumbai regions and optional DLT fields (#23).
+
 - LINK Mobility Common Platform outbound SMS provider with fluent and configuration-based registration (#24).
 
 - Esendex Message Dispatcher outbound SMS provider with fluent and configuration-based registration (#25).
