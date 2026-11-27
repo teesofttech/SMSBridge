@@ -8,7 +8,7 @@ public static class SmsBridgeTelemetry
     public const string ActivitySourceName = "SmsBridge";
     public const string MeterName = "SmsBridge";
 
-    [Obsolete("No longer updated. The SmsBridge ActivitySource version now follows the assembly informational version.")]
+    /// <summary>Legacy constant retained for compatibility. The activity source reports the package version separately.</summary>
     public const string Version = "0.1.0";
 
     private static readonly ActivitySource ActivitySource = new(ActivitySourceName, GetAssemblyVersion());

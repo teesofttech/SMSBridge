@@ -8,7 +8,6 @@ using SmsBridge.Routing;
 
 namespace SmsBridge.UnitTests;
 
-[Collection("SmsBridgeTelemetry")]
 public sealed class DiagnosticsPrivacyTests
 {
     [Fact]
@@ -33,12 +32,22 @@ public sealed class DiagnosticsPrivacyTests
             Substitute.For<ILogger<FailoverSmsProviderRouter>>());
         var logger = new RecordingLogger<SmsClient>();
         var client = new SmsClient(router, options, logger);
+        using var parent = new Activity(nameof(SendAsync_DiagnosticsExcludeRecipientData))
+            .SetIdFormat(ActivityIdFormat.W3C)
+            .Start();
         Activity? stoppedActivity = null;
         using var listener = new ActivityListener
         {
             ShouldListenTo = source => source.Name == SmsBridgeTelemetry.ActivitySourceName,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-            ActivityStopped = activity => stoppedActivity = activity
+            Sample = (ref ActivityCreationOptions<ActivityContext> options) =>
+                options.TraceId == parent.TraceId && options.Parent.SpanId == parent.SpanId
+                    ? ActivitySamplingResult.AllData
+                    : ActivitySamplingResult.None,
+            ActivityStopped = activity =>
+            {
+                if (activity.TraceId == parent.TraceId && activity.ParentSpanId == parent.SpanId)
+                    stoppedActivity = activity;
+            }
         };
         ActivitySource.AddActivityListener(listener);
 
@@ -49,7 +58,8 @@ public sealed class DiagnosticsPrivacyTests
         logger.Messages.Should().Contain(message => message.Contains("twilio", StringComparison.Ordinal));
         logger.Messages.Should().Contain(message => message.Contains("SM123", StringComparison.Ordinal));
         stoppedActivity.Should().NotBeNull();
-        stoppedActivity!.Tags.Should().Contain(tag => tag.Key == "sms.provider" && tag.Value == "twilio");
+        stoppedActivity!.OperationName.Should().Be("sms.send");
+        stoppedActivity.Tags.Should().Contain(tag => tag.Key == "sms.provider" && tag.Value == "twilio");
         stoppedActivity.Tags.Should().NotContain(tag => tag.Key == "sms.to.hash");
         stoppedActivity.Tags.Should().NotContain(tag =>
             tag.Value != null && tag.Value.Contains(recipient, StringComparison.Ordinal));
