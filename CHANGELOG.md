@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Arkesel SMS V2 outbound provider with header-based authentication and per-recipient result mapping (#57).
+
 - .NET 11 support for the SDK, samples, CI and release publishing. The full test suite runs on .NET 10 and .NET 11.
 - NuGet package icon (#64)
 - Documentation site logo and favicon (#65)

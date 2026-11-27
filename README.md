@@ -220,6 +220,7 @@ policy, and treat that identifier as potentially personal data.
 | Termii | Supported |
 | Unifonic | Supported |
 | Africa's Talking | Supported |
+| Arkesel (SMS V2) | Supported |
 
 ---
 

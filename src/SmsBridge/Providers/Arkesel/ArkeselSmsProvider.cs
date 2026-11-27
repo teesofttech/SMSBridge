@@ -25,9 +25,7 @@ internal sealed class ArkeselSmsProvider : ISmsProvider
 
     public async Task<SmsSendResult> SendAsync(SmsMessage message, CancellationToken cancellationToken = default)
     {
-        // V1 defines a GET endpoint. Do not log the URI: it contains the API key and message.
-        using var request = new HttpRequestMessage(HttpMethod.Get,
-            ArkeselSmsRequestMapper.ToRequestUri(message, _options));
+        using var request = ArkeselSmsRequestMapper.CreateRequest(message, _options);
         var client = _httpClientFactory.CreateClient(HttpClientNames.Arkesel);
 
         HttpResponseMessage response;
@@ -41,13 +39,20 @@ internal sealed class ArkeselSmsProvider : ISmsProvider
             return SmsSendResult.Failed(Name, null, "Arkesel HTTP request failed.",
                 isTransient: true, mayHaveBeenAccepted: true);
         }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogWarning("Arkesel: HTTP request timed out for provider '{Provider}'", Name);
+            return SmsSendResult.Failed(Name, null, "Arkesel HTTP request timed out.",
+                isTransient: true, mayHaveBeenAccepted: true);
+        }
 
         using (response)
         {
+            if (!response.IsSuccessStatusCode)
+                return ArkeselSmsResponseMapper.FromErrorResponse(Name, (int)response.StatusCode);
+
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
-            return response.IsSuccessStatusCode
-                ? ArkeselSmsResponseMapper.FromResponse(Name, body)
-                : ArkeselSmsResponseMapper.FromErrorResponse(Name, (int)response.StatusCode, body);
+            return ArkeselSmsResponseMapper.FromResponse(Name, message.To, body);
         }
     }
 }
