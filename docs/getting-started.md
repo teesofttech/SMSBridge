@@ -7,6 +7,9 @@ layout: default
 
 ## Install
 
+SMSBridge targets .NET 10 and .NET 11. If your application targets .NET 8 or 9,
+use the latest compatible SMSBridge package until you can upgrade your application.
+
 ```bash
 dotnet add package SmsBridge
 ```

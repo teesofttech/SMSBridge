@@ -4,6 +4,9 @@ Thank you for your interest in contributing.
 
 ## Getting Started
 
+Install the .NET 11 SDK to build the solution. Install the .NET 10 runtime as
+well to run the test suites on both supported frameworks.
+
 1. Fork the repository.
 2. Clone your fork.
 3. Create a feature branch from `main`.

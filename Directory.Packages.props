@@ -13,7 +13,6 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
     <PackageVersion Include="OpenTelemetry.Api" Version="1.16.0" />
     <PackageVersion Include="NSec.Cryptography" Version="25.4.0" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup Label="Testing">
@@ -30,8 +29,8 @@
   </ItemGroup>
 
   <ItemGroup Label="Samples">
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="2.7.5" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="3.11.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
   </ItemGroup>
 </Project>
