@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Textmagic REST API V2 outbound SMS provider with fluent and configuration-based registration (#26).
+
 - seven.io outbound SMS provider with fluent and configuration-based registration (#27).
 
 - Arkesel SMS V2 outbound provider with header-based authentication and per-recipient result mapping (#57).

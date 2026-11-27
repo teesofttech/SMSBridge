@@ -223,3 +223,24 @@ SMSBridge sends a form-encoded POST to the SMS endpoint and authenticates
 with the `X-Api-Key` header. Response code `100` means the gateway accepted the
 message for sending. This plain-text response provides no message ID.
 See the [seven.io SMS API](https://docs.seven.io/en/rest-api/endpoints/sms).
+
+## Textmagic
+
+```csharp
+.UseTextmagic("textmagic", o =>
+{
+    o.Username = configuration["Textmagic:Username"];
+    o.ApiKey = configuration["Textmagic:ApiKey"];
+    o.From = "MyApp";
+})
+```
+
+For configuration-based registration, set `Type` to `Textmagic` and supply
+`Username`, `ApiKey` and `From`. Use a Textmagic REST API V2 key and a sender
+ID or number available to your account. A message can override the configured
+sender through `SmsMessage.From`.
+
+SMSBridge sends a JSON POST to the V2 messages endpoint and authenticates with
+the `X-TM-Username` and `X-TM-Key` headers. A single-message response supplies
+the message ID in `SmsSendResult.ProviderMessageId`.
+See the [Textmagic API reference](https://docs.textmagic.com/) for details.
