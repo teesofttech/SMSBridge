@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using SmsBridge.Abstractions;
@@ -85,4 +86,76 @@ public sealed class RoutingTests
 
         act.Should().Throw<SmsBridgeException>().WithMessage("*No provider could be resolved*");
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void DefaultRouter_BlankExplicitProvider_FallsBackToDefault(string? explicitProvider)
+    {
+        var router = new DefaultSmsProviderRouter(
+            [MakeProvider("twilio"), MakeProvider("vonage")],
+            Options(o => o.DefaultProvider = "twilio"));
+
+        var resolved = router.Resolve(new SmsRoutingContext
+        {
+            Message = new SmsMessage { To = "+1", Body = "Hi" },
+            ExplicitProvider = explicitProvider
+        });
+
+        resolved.Name.Should().Be("twilio");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void FailoverRouter_BlankExplicitProvider_FallsBackToDefault(string? explicitProvider)
+    {
+        var router = MakeFailoverRouter("twilio", MakeProvider("twilio"), MakeProvider("vonage"));
+
+        var resolved = router.Resolve(new SmsRoutingContext
+        {
+            Message = new SmsMessage { To = "+1", Body = "Hi" },
+            ExplicitProvider = explicitProvider
+        });
+
+        resolved.Name.Should().Be("twilio");
+    }
+
+    [Fact]
+    public void FailoverRouter_ResolvesExplicitProvider()
+    {
+        var router = MakeFailoverRouter("twilio", MakeProvider("twilio"), MakeProvider("vonage"));
+
+        var resolved = router.Resolve(new SmsRoutingContext
+        {
+            Message = new SmsMessage { To = "+1", Body = "Hi" },
+            ExplicitProvider = "vonage"
+        });
+
+        resolved.Name.Should().Be("vonage");
+    }
+
+    [Fact]
+    public void FailoverRouter_ThrowsWhenExplicitProviderNotRegistered()
+    {
+        var router = MakeFailoverRouter("twilio", MakeProvider("twilio"));
+
+        var act = () => router.Resolve(new SmsRoutingContext
+        {
+            Message = new SmsMessage { To = "+1", Body = "Hi" },
+            ExplicitProvider = "unknown"
+        });
+
+        act.Should().Throw<SmsBridgeException>().WithMessage("*not registered*");
+    }
+
+    private static FailoverSmsProviderRouter MakeFailoverRouter(
+        string defaultProvider,
+        params ISmsProvider[] providers) =>
+        new(
+            providers,
+            Options(o => o.DefaultProvider = defaultProvider),
+            Substitute.For<ILogger<FailoverSmsProviderRouter>>());
 }

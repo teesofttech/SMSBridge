@@ -5,6 +5,7 @@ using SmsBridge.Abstractions;
 using SmsBridge.DependencyInjection;
 using SmsBridge.Options;
 using SmsBridge.Routing;
+using SmsBridge.Webhooks;
 
 namespace SmsBridge.IntegrationTests;
 
@@ -485,5 +486,60 @@ public sealed class DependencyInjectionTests
 
         var client = provider.GetRequiredService<ISmsClient>();
         client.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void AddSmsBridge_CalledTwice_ResolvesWebhookParserResolver()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts => opts.DefaultProvider = "twilio");
+        services.AddSmsBridge(opts => opts.DefaultProvider = "twilio");
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var resolver = serviceProvider.GetRequiredService<SmsWebhookParserResolver>();
+
+        resolver.Resolve(SmsProviderType.Twilio).Should().BeOfType<TwilioWebhookParser>();
+    }
+
+    [Fact]
+    public void CustomWebhookParser_RegisteredAfterAddSmsBridge_Wins()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        var custom = new CustomTwilioWebhookParser();
+
+        services.AddSmsBridge(opts => opts.DefaultProvider = "twilio");
+        services.AddSingleton<ISmsWebhookParser>(custom);
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var resolver = serviceProvider.GetRequiredService<SmsWebhookParserResolver>();
+
+        resolver.Resolve(SmsProviderType.Twilio).Should().BeSameAs(custom);
+    }
+
+    [Fact]
+    public void WebhookParserResolver_UnknownProvider_StillThrows()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddSmsBridge(opts => opts.DefaultProvider = "twilio");
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var resolver = serviceProvider.GetRequiredService<SmsWebhookParserResolver>();
+
+        var act = () => resolver.Resolve(SmsProviderType.MessageBird);
+
+        act.Should().Throw<SmsBridgeException>().WithMessage("*No webhook parser is registered*");
+    }
+
+    private sealed class CustomTwilioWebhookParser : ISmsWebhookParser
+    {
+        public SmsProviderType Provider => SmsProviderType.Twilio;
+
+        public SmsWebhookEvent Parse(IDictionary<string, string> payload) =>
+            throw new NotSupportedException();
     }
 }
