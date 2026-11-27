@@ -222,6 +222,7 @@ policy, and treat that identifier as potentially personal data.
 | Africa's Talking | Supported |
 | Arkesel (SMS V2) | Supported |
 | seven.io | Supported |
+| Textmagic | Supported |
 
 ---
 

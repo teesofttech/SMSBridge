@@ -110,6 +110,9 @@ public static class SmsBridgeServiceCollectionExtensions
                 case SmsProviderType.SevenIo:
                     builder.UseSevenIo(name, config => BindProviderConfiguration(providerSection, config));
                     break;
+                case SmsProviderType.Textmagic:
+                    builder.UseTextmagic(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
                 case SmsProviderType.Termii:
                     builder.UseTermii(name, config => BindProviderConfiguration(providerSection, config));
                     break;
