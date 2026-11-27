@@ -107,6 +107,9 @@ public static class SmsBridgeServiceCollectionExtensions
                 case SmsProviderType.Arkesel:
                     builder.UseArkesel(name, config => BindProviderConfiguration(providerSection, config));
                     break;
+                case SmsProviderType.SevenIo:
+                    builder.UseSevenIo(name, config => BindProviderConfiguration(providerSection, config));
+                    break;
                 case SmsProviderType.Termii:
                     builder.UseTermii(name, config => BindProviderConfiguration(providerSection, config));
                     break;

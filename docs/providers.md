@@ -204,3 +204,22 @@ Configure `Sender` with an approved sender ID of up to 11 characters.
 `SmsMessage.From` can override it per message. For Nigerian traffic, set
 `UseCase` to `transactional` or `promotional` as appropriate.
 See the [Arkesel API documentation](https://developers.arkesel.com/) for details.
+
+## seven.io
+
+```csharp
+.UseSevenIo("seven", o =>
+{
+    o.ApiKey = configuration["SevenIo:ApiKey"];
+    o.From = "MyApp";
+})
+```
+
+For configuration-based registration, set `Type` to `SevenIo` and supply
+`ApiKey` and `From`. A message can override the configured sender through
+`SmsMessage.From`.
+
+SMSBridge sends a form-encoded POST to the SMS endpoint and authenticates
+with the `X-Api-Key` header. Response code `100` means the gateway accepted the
+message for sending. This plain-text response provides no message ID.
+See the [seven.io SMS API](https://docs.seven.io/en/rest-api/endpoints/sms).

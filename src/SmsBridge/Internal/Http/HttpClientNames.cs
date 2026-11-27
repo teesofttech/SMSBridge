@@ -15,4 +15,5 @@ internal static class HttpClientNames
     public const string SmartSms = "SmsBridge.SmartSms";
     public const string AfricasTalking = "SmsBridge.AfricasTalking";
     public const string Arkesel = "SmsBridge.Arkesel";
+    public const string SevenIo = "SmsBridge.SevenIo";
 }

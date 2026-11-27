@@ -15,5 +15,6 @@ public enum SmsProviderType
     Telnyx = 10,
     SmartSms = 11,
     AfricasTalking = 12,
-    Arkesel = 13
+    Arkesel = 13,
+    SevenIo = 14
 }
