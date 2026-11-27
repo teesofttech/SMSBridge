@@ -244,3 +244,25 @@ SMSBridge sends a JSON POST to the V2 messages endpoint and authenticates with
 the `X-TM-Username` and `X-TM-Key` headers. A single-message response supplies
 the message ID in `SmsSendResult.ProviderMessageId`.
 See the [Textmagic API reference](https://docs.textmagic.com/) for details.
+
+## Esendex
+
+```csharp
+.UseEsendex("esendex", o =>
+{
+    o.Username = configuration["Esendex:Username"];
+    o.Password = configuration["Esendex:Password"];
+    o.AccountReference = "EX0000000";
+    o.From = "MyApp"; // Optional
+})
+```
+
+For configuration-based registration, set `Type` to `Esendex` and supply
+`Username`, `Password` and `AccountReference`. Use the Esendex API password.
+Set `From` for a configured sender or use `SmsMessage.From` to override it for
+one message. If both are omitted, Esendex uses the account’s default.
+
+SMSBridge sends XML to the Message Dispatcher with HTTP Basic authentication
+and asks Esendex to detect the character set. A single-message acknowledgement
+provides the message header ID in `SmsSendResult.ProviderMessageId`.
+See the [Esendex Message Dispatcher documentation](https://developers.esendex.com/api-reference/#messagedispatcher).
