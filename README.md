@@ -221,6 +221,7 @@ policy, and treat that identifier as potentially personal data.
 | Unifonic | Supported |
 | Africa's Talking | Supported |
 | Arkesel (SMS V2) | Supported |
+| seven.io | Supported |
 
 ---
 

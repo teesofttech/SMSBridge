@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- seven.io outbound SMS provider with fluent and configuration-based registration (#27).
+
 - Arkesel SMS V2 outbound provider with header-based authentication and per-recipient result mapping (#57).
 
 - .NET 11 support for the SDK, samples, CI and release publishing. The full test suite runs on .NET 10 and .NET 11.
